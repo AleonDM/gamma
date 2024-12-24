@@ -1,0 +1,235 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+@font-face {
+    font-family: Buttons;
+    src: url(./ofont.ru_Kanit\ Cyrillic.ttf);
+}
+
+@font-face {
+    font-family: News;
+    src: url(./NotoSans-VariableFont_wdth\,wght.ttf);
+}
+
+@font-face {
+    font-family: Other;
+    src: url(./centurygothic.ttf);
+}
+
+body {
+    overflow-y: scroll;
+}
+
+.sidebar {
+    width: 40%;
+    /* border: 2px dashed red; */
+    height: 100%;
+    position:absolute;
+}
+
+.contents_inner {
+    width: 90%;
+    height: 100%;
+    margin: 0 auto;
+    /* border: 2px dashed green; */
+  }
+
+.element {
+    width: 100%;
+    height: auto;
+    /* border: 2px dashed blue; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+#space-sidebar {
+    height: 80px;
+    /* border: 2px dashed black; */
+    text-transform:uppercase;
+    font-size: 30pt;
+    font-family: Buttons;
+    font-style: italic;
+}
+#logo {
+    width: 100%;
+    /* border: 2px dashed orange; */
+    height: 170px;
+    font-size: 100pt;
+    font-family: Buttons;
+    font-style: italic;
+}
+#links {
+    height: auto;
+    text-transform:uppercase;
+    font-size: 25px;
+    margin: 8px 14px 8px 14px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-family: Buttons;
+    font-weight: 900;
+    color: #333;
+}
+
+#links:hover {
+    opacity: 0.6;
+    transition: 0.4s;
+}
+
+.maintext {
+    position: relative;
+    margin-left: 40%;
+    width: 60%;
+    height: 100%;
+    /* border: 2px dashed purple; */
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+    background-size:contain;
+    display: inline;
+}
+
+.NEWSsidebar {
+    height: auto;
+    /* border: 2px dashed gold; */
+    font-size: 30pt;
+    margin-top: 70px;
+}
+.NEWSsidebartitle {
+    height: 48px;
+    /* border: 2px dashed rgb(0, 217, 255); */
+    font-size: 30pt;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    font-family: Buttons;
+    color:#333;
+    font-weight: 900;
+    margin-bottom: 12px;
+}
+
+
+.NEWSsidebarnews {
+    height: auto;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    /* border: 2px dashed rgb(255, 115, 0); */
+    font-size: 30pt;
+    margin-top: 70px;
+    border-bottom: 2px dashed gray; ;
+}
+
+#dates {
+    height: auto;
+    width: 100%;
+    font-size: 20pt;
+    margin-left: 10px;
+    font-family: News;
+    color:#333;
+}
+
+#header {
+    height: auto;
+    width: 100%;
+    font-size: 23pt;
+    margin-left: 10px;
+    font-family: News;
+    color:#333;
+}
+
+#text {
+    height: auto;
+    width: 100%;
+    font-size: 30pt;
+    margin-left: 10px;
+    font-family: News;
+    color:#333;
+}
+
+
+img {
+    max-width: 100%;
+    vertical-align: bottom;
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+}
+
+
+
+@media screen and (min-width: 901px) {
+    .button-sidebar {
+        display: none;
+    }
+    .bar {
+        display: none;
+    }
+    .mainmobile {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .sidebar {
+        display: none;
+    }
+    .maintext {
+        display: none;
+    }
+    .button-sidebar {
+        position: fixed;
+        width: 70px;
+        height:70px;
+        margin-left: calc(100% - 70px);
+        border: 2px dashed red;
+        z-index: 2;
+        cursor: crosshair;
+    }
+    .bar {
+        width:100%;
+        height:100%;
+        position:fixed;
+        display: block;
+        z-index: 1;
+        transform: translate(100%, 0);
+        opacity: 0;
+    }
+    #space-top {
+        height:70px;
+        width: 100%;
+        background-color: #fff;
+    }
+    #space-bottom {
+        height: 100%;
+        width: 100%;
+    }
+    #elem {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-transform:uppercase;
+        font-size: 20pt;
+        width: 100%;
+        height: calc((100% - 70px) / 5);
+        background-color: #fff;
+    }
+    .even-elem {
+        background-color: orange !important;
+    }
+    .mainmobile {
+        background-size:cover;
+        background-clip: border-box;
+        height:100%;
+        width:100%;
+        background-repeat: no-repeat;
+        z-index: 0;
+        overflow-x: clip;
+        overflow-y: clip;
+    }
+    @keyframes open {
+        to {
+        transform: translate(0, 0);
+        opacity: 1;
+        }
+    }
+}   
