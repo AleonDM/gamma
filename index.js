@@ -1,12 +1,17 @@
 function toggleSidebar() {
-    let button = document.getElementById('button')
-    let sidebar = document.getElementById('bar')
-    if (sidebar.style.display === 'none') {
+    let button = document.getElementById('button');
+    let sidebar = document.getElementById('bar');
+    
+    // Переключаем класс для вращения кнопки
+    button.classList.toggle('rotated');
+    
+    if (sidebar.style.display === 'none' || !sidebar.style.display) {
         sidebar.style.display = 'block';
         sidebar.style.animation = 'open 0.4s ease-out forwards';
-        sidebar.style.position = 'fixed';
     } else {
-        sidebar.style.display = 'none';
-        sidebar.classList.toggle("active") 
+        sidebar.style.animation = 'close 0.4s ease-out forwards';
+        setTimeout(() => {
+            sidebar.style.display = 'none';
+        }, 400);
     }
 }
