@@ -2,7 +2,6 @@ function toggleSidebar() {
     let button = document.getElementById('button');
     let sidebar = document.getElementById('bar');
     
-    // Переключаем класс для вращения кнопки
     button.classList.toggle('rotated');
     
     if (sidebar.style.display === 'none' || !sidebar.style.display) {
