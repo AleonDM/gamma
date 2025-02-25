@@ -65,7 +65,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Стили для кнопки Back */
 .back {
     position: fixed;
     top: 20px;
@@ -92,7 +91,7 @@ body {
 .back span {
     display: inline-block;
     position: relative;
-    top: -1px; /* Тонкая настройка вертикального положения */
+    top: -1px; 
 }
 
 .back:hover {
@@ -117,7 +116,6 @@ body {
         width: 90%;
     }
     
-    /* Адаптация кнопки Back для телефонов */
     .back {
         top: 10px;
         right: 10px;
