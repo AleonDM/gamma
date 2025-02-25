@@ -1,30 +1,39 @@
 const teams = [
     {
-        name: "Team 1",
+        name: "Team spirit",
+        page: "1.html"
     },
     {
         name: "Team 2",
+        page: "2.html"
     },
     {
         name: "Team 3",
+        page: "3.html"
     },
     {
         name: "Team 4",
+        page: "4.html"
     },
     {
         name: "Team 5",
+        page: "5.html"
     },
     {
         name: "Team 6",
+        page: "6.html"
     },
     {
         name: "Team 7",
+        page: "7.html"
     },
     {
         name: "Team 8",
+        page: "8.html"
     },
     {
         name: "admin",
+        page: "admin.html"
     },
     
 ]
@@ -42,13 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (team) {
             localStorage.setItem('isAuthenticated', 'true');
             localStorage.setItem('teamName', username);
+            localStorage.setItem('teamPage', team.page);
             
-            if (username.startsWith('Team ')) {
-                const teamNumber = username.split(' ')[1];
-                window.location.href = '../groups/' + teamNumber + '.html';
-            } else if (username === 'admin') {
-                window.location.href = '../groups/admin.html';
-            }
+            window.location.href = '../groups/' + team.page;
         } else {
             alert('Неверное имя команды');
         }

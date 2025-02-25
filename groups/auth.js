@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     const teamName = localStorage.getItem('teamName');
+    const teamPage = localStorage.getItem('teamPage');
     
     const currentPage = window.location.pathname.split('/').pop();
     
@@ -10,15 +11,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    if (teamName.startsWith('Team ')) {
-        const teamNumber = teamName.split(' ')[1];
-        const allowedPage = teamNumber + '.html';
-        
-        if (currentPage !== allowedPage && teamName !== 'admin') {
-            window.location.href = teamNumber + '.html';
-        }
-    } else if (teamName === 'admin') {
+    if (teamName === 'admin') {
         return;
+    } else if (teamPage) {
+        if (currentPage !== teamPage) {
+            window.location.href = teamPage;
+        }
     } else {
         window.location.href = '../login/login.html';
     }
