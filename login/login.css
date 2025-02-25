@@ -11,6 +11,7 @@ body {
     align-items: center;
     min-height: 100vh;
     background-color: #f5f5f5;
+    position: relative;
 }
 
 .login-container {
@@ -64,6 +65,41 @@ body {
     transform: translateY(-2px);
 }
 
+/* Стили для кнопки Back */
+.back {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #1e3c72;
+    color: white;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 100;
+    line-height: 1;
+    padding: 0;
+    text-align: center;
+}
+
+.back span {
+    display: inline-block;
+    position: relative;
+    top: -1px; /* Тонкая настройка вертикального положения */
+}
+
+.back:hover {
+    background-color: #2a5298;
+    transform: scale(1.1);
+}
+
 @media (max-width: 480px) {
     .login-container {
         width: 90%;
@@ -79,6 +115,15 @@ body {
     
     .login-container form {
         width: 90%;
+    }
+    
+    /* Адаптация кнопки Back для телефонов */
+    .back {
+        top: 10px;
+        right: 10px;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
     }
 }
 
