@@ -1,0 +1,440 @@
+.teamTitle {
+    font-family: News;
+    font-size: 50px;
+}
+
+.tournament-box {
+    width: 100%;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    color: white;
+    text-align: center;
+}
+
+.tournament-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tournament-status {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.tournament-date {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.tournament-time {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.tournament-title {
+    font-size: 26px;
+    color: white;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.tournament-teams {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.tournament-teams .team {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 12px 25px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.tournament-teams .vs {
+    font-size: 24px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tournament-teams .team:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.no-tournaments {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+    font-size: 16px;
+}
+
+/* Стили для мобильной версии */
+.mainmobile {
+    padding: 20px;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.mainmobile .teamTitle {
+    font-size: 32px;
+    color: #1e3c72;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #1e3c72;
+}
+
+.mainmobile .members-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mainmobile .members-title {
+    font-size: 20px;
+    color: #2a5298;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.mainmobile .member-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mainmobile .member-item {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.mainmobile .tournaments-section {
+    margin-top: 25px;
+}
+
+.mainmobile .tournament-box {
+    width: 100%;
+    margin: 15px 0;
+    background: white;
+    color: #1e3c72;
+    border: 2px solid #1e3c72;
+    box-sizing: border-box;
+    padding: 15px;
+}
+
+.mainmobile .tournament-status {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.mainmobile .tournament-date,
+.mainmobile .tournament-time {
+    color: #2a5298;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.mainmobile .tournament-title {
+    font-size: 20px;
+    color: #1e3c72;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.mainmobile .logout-button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-top: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mainmobile .logout-button:active {
+    transform: scale(0.98);
+}
+
+.mainmobile .tournament-teams.mobile {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.mainmobile .tournament-teams.mobile .team {
+    font-size: 16px;
+    padding: 8px 15px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.mainmobile .tournament-teams.mobile .vs {
+    font-size: 18px;
+    color: #1e3c72;
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: Buttons;
+    src: url(../ofont.ru_Kanit\ Cyrillic.ttf);
+}
+
+@font-face {
+    font-family: News;
+    src: url(../NotoSans-VariableFont_wdth\,wght.ttf);
+}
+
+@font-face {
+    font-family: Other;
+    src: url(../centurygothic.ttf);
+}
+
+.maintext {
+    margin-left: 300px;
+    padding: 40px;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+@media (min-width: 769px) {
+    .mainmobile {
+        display: none;
+    }
+
+    .button-sidebar {
+        display: none;
+    }
+
+    .teamContent {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .teamInfo {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .teamTitle {
+        font-size: 36px;
+        color: #1e3c72;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #1e3c72;
+        padding-bottom: 15px;
+    }
+
+    .membersSection {
+        margin-top: 30px;
+    }
+
+    .membersTitle {
+        font-size: 24px;
+        color: #2a5298;
+        margin-bottom: 20px;
+    }
+
+    .membersList {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .memberCard {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-size: 18px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+        width: 100%;
+        text-align: center;
+    }
+
+    .memberCard:hover {
+        transform: translateY(-5px);
+    }
+
+    .tournamentsSection {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
+
+    .tournamentsTitle {
+        font-size: 24px;
+        color: #2a5298;
+        margin-bottom: 20px;
+    }
+
+    #tournamentsList {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tournament-box {
+        width: 80%;
+        background: white;
+        border: 2px solid #1e3c72;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .tournament-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .tournament-status {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    .tournament-date {
+        color: #1e3c72;
+        font-weight: bold;
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    .tournament-time {
+        color: #2a5298;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .tournament-title {
+        font-size: 24px;
+        color: #1e3c72;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .tournament-teams {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+    }
+
+    .tournament-teams .team {
+        font-size: 20px;
+        font-weight: bold;
+        padding: 12px 25px;
+        background: #1e3c72;
+        border-radius: 8px;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .tournament-teams .vs {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1e3c72;
+    }
+
+    .tournament-teams .team:hover {
+        background: #2a5298;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .logoutBtn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        padding: 12px 25px;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .logoutBtn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+}
+
+@media (max-width: 768px) {
+    .teamContent {
+        display: none;
+    }
+
+    .maintext {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+
+.member-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.member-item {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+    text-align: center;
+}
