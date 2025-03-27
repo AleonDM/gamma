@@ -1,24 +1,6 @@
 const statuses = ['Запланирован', 'Идёт', 'Окончен', 'Перенесён', 'Отменён']
 
 const tournirs = [
-    {
-        id: 1,
-        title: "Brawl Stars четвертьфинал",
-        date: "21.02.2025",
-        time: "18:00",
-        team1: "Kainozoy",
-        team2: "Mezozoy",
-        status: statuses[3],
-    },
-    {
-        id: 2,
-        title: "cs2 четвертьфинал",
-        date: "21.02.2025",
-        time: "20:00",
-        team1: "Kainozoy",
-        team2: "Mezozoy",
-        status: statuses[0],
-    }
 ]
 
 document.addEventListener('DOMContentLoaded', function() {

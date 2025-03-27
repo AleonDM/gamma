@@ -207,6 +207,16 @@
     font-weight: bold;
 }
 
+.tournament-game {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 5px;
+}
+
+.mainmobile .tournament-game {
+    color: rgba(30, 60, 114, 0.7);
+}
+
 @font-face {
     font-family: Buttons;
     src: url(../ofont.ru_Kanit\ Cyrillic.ttf);

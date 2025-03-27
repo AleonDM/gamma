@@ -5,8 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Команда</title>
     <script src="auth.js"></script>
+    <script src="team.js"></script>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="teamStyles.css">
+    <script>
+        function toggleSidebar() {
+            const bar = document.getElementById('bar');
+            const button = document.getElementById('button');
+            
+            if (bar.style.display === 'block') {
+                bar.style.display = 'none';
+                button.textContent = 'X';
+            } else {
+                bar.style.display = 'block';
+                button.textContent = '<';
+            }
+        }
+    </script>
 </head>
 <body>
     <!-- PC VER -->
@@ -82,12 +97,8 @@
         </div>
 
         <div class="tournaments-section">
-            <h2 class="members-title">Турниры</h2>
-            <div class="tournament-box">
-                <div class="tournament-status" id="status">Статус турнира</div>
-                <div class="tournament-date" id="date">Дата</div>
-                <div class="tournament-time" id="time">Время</div>
-                <div class="tournament-title" id="title">Название турнира</div>
+            <h2 class="tournaments-title">Турниры</h2>
+            <div id="tournamentsListMobile">
             </div>
         </div>
 
@@ -95,8 +106,5 @@
     </div>
     
     <script src="logout.js"></script>
-    <script src="teamName.js"></script>
-    <script src="tournirs.js"></script>
-    <script src="../index.js"></script>
 </body>
 </html>

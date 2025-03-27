@@ -1,8 +1,7 @@
 // Проверка авторизации
 document.addEventListener('DOMContentLoaded', function() {
     const isAuthenticated = localStorage.getItem('isAuthenticated');
-    const teamName = localStorage.getItem('teamName');
-    const teamPage = localStorage.getItem('teamPage');
+    const teamCode = localStorage.getItem('teamCode');
     
     const currentPage = window.location.pathname.split('/').pop();
     
@@ -11,13 +10,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    if (teamName === 'admin') {
+    if (teamCode === 'admin' && currentPage === '1.html') {
+        window.location.href = 'admin.html';
         return;
-    } else if (teamPage) {
-        if (currentPage !== teamPage) {
-            window.location.href = teamPage;
-        }
-    } else {
-        window.location.href = '../login/login.html';
+    }
+    
+    if (teamCode !== 'admin' && currentPage === 'admin.html') {
+        window.location.href = '1.html';
+        return;
     }
 }); 
