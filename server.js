@@ -19,7 +19,13 @@ const {
     getTeams,
     updateTeam,
     deleteTeam,
-    getTournamentById
+    getTournamentById,
+    updateTournamentScore,
+    getNews,
+    createNews,
+    updateNews,
+    deleteNews,
+    getNewsById
 } = require('./groups/database');
 
 // Турниры
@@ -77,6 +83,17 @@ app.get('/api/tournaments/:id', async (req, res) => {
     }
 });
 
+app.put('/api/tournaments/:id/score', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { scoreTeam1, scoreTeam2 } = req.body;
+        const result = await updateTournamentScore(id, scoreTeam1, scoreTeam2);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Команды
 app.get('/api/teams/code/:code', async (req, res) => {
     try {
@@ -126,6 +143,74 @@ app.delete('/api/teams/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const result = await deleteTeam(id);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Новости
+app.get('/api/news', async (req, res) => {
+    try {
+        const { category } = req.query;
+        const news = await getNews(category || 'all');
+        res.json(news);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/news/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const newsItem = await getNewsById(id);
+        if (!newsItem) {
+            res.status(404).json({ error: 'Новость не найдена' });
+            return;
+        }
+        res.json(newsItem);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/news', async (req, res) => {
+    try {
+        const { date, title, content, category } = req.body;
+        
+        if (!date || !title) {
+            res.status(400).json({ error: 'Дата и заголовок обязательны' });
+            return;
+        }
+        
+        const result = await createNews(date, title, content, category);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/news/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { date, title, content, category } = req.body;
+        
+        if (!date || !title) {
+            res.status(400).json({ error: 'Дата и заголовок обязательны' });
+            return;
+        }
+        
+        const result = await updateNews(id, date, title, content, category);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/news/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await deleteNews(id);
         res.json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });

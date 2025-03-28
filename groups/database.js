@@ -13,7 +13,9 @@ db.serialize(() => {
       team1 TEXT NOT NULL,
       team2 TEXT NOT NULL,
       status TEXT NOT NULL,
-      game TEXT NOT NULL
+      game TEXT NOT NULL,
+      score_team1 INTEGER DEFAULT 0,
+      score_team2 INTEGER DEFAULT 0
     )
   `);
 
@@ -26,6 +28,18 @@ db.serialize(() => {
       page TEXT NOT NULL,
       members TEXT NOT NULL,
       tournament_ids TEXT
+    )
+  `);
+  
+  // Создание таблицы новостей
+  db.run(`
+    CREATE TABLE IF NOT EXISTS news (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT,
+      category TEXT DEFAULT 'all',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -64,6 +78,13 @@ db.serialize(() => {
     
     if (row.count === 0) {
       const initialTeams = [
+        {
+          name: "Администратор",
+          code: "admin",
+          page: "admin.html",
+          members: [],
+          tournament_ids: ""
+        }
       ];
 
       const stmt = db.prepare('INSERT INTO teams (name, code, page, members, tournament_ids) VALUES (?, ?, ?, ?, ?)');
@@ -74,6 +95,39 @@ db.serialize(() => {
           team.page,
           JSON.stringify(team.members),
           team.tournament_ids
+        ]);
+      });
+      stmt.finalize();
+    }
+  });
+
+  // Добавление начальных данных для новостей
+  db.get("SELECT COUNT(*) as count FROM news", [], (err, row) => {
+    if (err || !row) {
+      console.error(err);
+      return;
+    }
+    
+    if (row.count === 0) {
+      const initialNews = [
+        {
+          date: '24.02.2022',
+          title: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam, eum.',
+          category: 'all'
+        },
+        {
+          date: '24.12.2024',
+          title: 'HOKAGE LEAN IS AVAILABLE',
+          category: 'all'
+        }
+      ];
+
+      const stmt = db.prepare('INSERT INTO news (date, title, category) VALUES (?, ?, ?)');
+      initialNews.forEach(news => {
+        stmt.run([
+          news.date,
+          news.title,
+          news.category
         ]);
       });
       stmt.finalize();
@@ -194,6 +248,77 @@ function getTournamentById(id) {
   });
 }
 
+function updateTournamentScore(id, scoreTeam1, scoreTeam2) {
+  return new Promise((resolve, reject) => {
+    const stmt = db.prepare('UPDATE tournaments SET score_team1 = ?, score_team2 = ? WHERE id = ?');
+    stmt.run([scoreTeam1, scoreTeam2, id], function(err) {
+      if (err) reject(err);
+      else resolve({ changes: this.changes });
+    });
+    stmt.finalize();
+  });
+}
+
+// Функции для работы с новостями
+function getNews(category = 'all') {
+  return new Promise((resolve, reject) => {
+    let query = 'SELECT * FROM news ORDER BY created_at DESC LIMIT 10';
+    let params = [];
+    
+    if (category !== 'all') {
+      query = 'SELECT * FROM news WHERE category = ? OR category = "all" ORDER BY created_at DESC LIMIT 10';
+      params = [category];
+    }
+    
+    db.all(query, params, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+}
+
+function createNews(date, title, content = null, category = 'all') {
+  return new Promise((resolve, reject) => {
+    const stmt = db.prepare('INSERT INTO news (date, title, content, category) VALUES (?, ?, ?, ?)');
+    stmt.run([date, title, content, category], function(err) {
+      if (err) reject(err);
+      else resolve({ id: this.lastID });
+    });
+    stmt.finalize();
+  });
+}
+
+function updateNews(id, date, title, content = null, category = 'all') {
+  return new Promise((resolve, reject) => {
+    const stmt = db.prepare('UPDATE news SET date = ?, title = ?, content = ?, category = ? WHERE id = ?');
+    stmt.run([date, title, content, category, id], function(err) {
+      if (err) reject(err);
+      else resolve({ changes: this.changes });
+    });
+    stmt.finalize();
+  });
+}
+
+function deleteNews(id) {
+  return new Promise((resolve, reject) => {
+    const stmt = db.prepare('DELETE FROM news WHERE id = ?');
+    stmt.run([id], function(err) {
+      if (err) reject(err);
+      else resolve({ changes: this.changes });
+    });
+    stmt.finalize();
+  });
+}
+
+function getNewsById(id) {
+  return new Promise((resolve, reject) => {
+    db.get('SELECT * FROM news WHERE id = ?', [id], (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+}
+
 module.exports = {
   createTournament,
   getTournaments,
@@ -204,5 +329,11 @@ module.exports = {
   getTeamByCode,
   updateTeam,
   deleteTeam,
-  getTournamentById
+  getTournamentById,
+  updateTournamentScore,
+  getNews,
+  createNews,
+  updateNews,
+  deleteNews,
+  getNewsById
 }; 

@@ -210,6 +210,12 @@ async function loadTournaments() {
                     <div class="vs">VS</div>
                     <div class="team">${tournament.team2}</div>
                 </div>
+                <div class="tournament-score" style="margin-top: 15px; display: flex; align-items: center; justify-content: center;">
+                    <input type="number" min="0" value="${tournament.score_team1 || 0}" id="score1-${tournament.id}" style="width: 60px; text-align: center; margin-right: 10px;">
+                    <span style="margin: 0 10px;">:</span>
+                    <input type="number" min="0" value="${tournament.score_team2 || 0}" id="score2-${tournament.id}" style="width: 60px; text-align: center; margin-left: 10px;">
+                    <button onclick="updateScore(${tournament.id})" style="margin-left: 15px;">Обновить счет</button>
+                </div>
                 <div style="margin-top: 15px;">
                     <select onchange="updateStatus(${tournament.id}, this.value)">
                         <option value="Запланирован" ${tournament.status === 'Запланирован' ? 'selected' : ''}>Запланирован</option>
@@ -291,5 +297,30 @@ async function deleteTeam(id) {
         loadTeamsForSelect();
     } catch (error) {
         alert('Ошибка при удалении команды: ' + error.message);
+    }
+}
+
+// Функция обновления счета
+async function updateScore(id) {
+    const scoreTeam1 = parseInt(document.getElementById(`score1-${id}`).value) || 0;
+    const scoreTeam2 = parseInt(document.getElementById(`score2-${id}`).value) || 0;
+    
+    try {
+        const response = await fetch(`/api/tournaments/${id}/score`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ scoreTeam1, scoreTeam2 })
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при обновлении счета');
+        }
+
+        alert('Счет успешно обновлен');
+        loadTournaments();
+    } catch (error) {
+        alert('Ошибка при обновлении счета: ' + error.message);
     }
 } 

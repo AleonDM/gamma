@@ -76,6 +76,7 @@ body {
     transition: 0.4s;
 }
 
+/* Стили для раздела новостей в сайдбаре */
 .NEWSsidebar {
     margin-top: 70px;
     height: auto;
@@ -108,7 +109,6 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     transition: all 0.3s ease;
-    font-size: 30pt;
     border-bottom: 2px dashed gray;
 }
 
@@ -116,39 +116,43 @@ body {
     background: rgba(255, 255, 255, 0.1);
 }
 
-#dates {
+.NEWSsidebarnews #dates {
     color: #a8b6d0;
     font-size: 20pt;
     margin-bottom: 5px;
     margin-left: 10px;
     font-family: News;
-    color: #333;
 }
 
-#header {
+.NEWSsidebarnews #header {
     color: #ffffff;
     font-size: 23pt;
     line-height: 1.4;
     margin-left: 10px;
     font-family: News;
-    color: #333;
 }
 
-#text {
+.NEWSsidebarnews #text {
     height: auto;
     width: 100%;
-    font-size: 30pt;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 20pt;
+    line-height: 1.4;
     margin-left: 10px;
     font-family: News;
-    color: #333;
 }
 
-.maintext {
-    margin-left: 300px;
-    padding: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+.news-add-button {
+    transition: background-color 0.3s;
+}
+
+.news-add-button:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Стили для модального окна */
+#newsModal button:hover {
+    opacity: 0.9;
 }
 
 /* Мобильная версия */

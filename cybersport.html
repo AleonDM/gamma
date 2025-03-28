@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Киберспорт</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="cybersport.css">
+    <script src="/news.js"></script>
+    <style>
+        /* Стили для обеспечения единого вида кнопок дисциплин */
+        .sidebar #links {
+            padding: 10px 20px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar #links:hover,
+        .bar #elem:hover {
+            background: rgba(30, 60, 114, 0.1);
+        }
+        
+        .sidebar #links.active,
+        .bar #elem.active {
+            background: rgba(30, 60, 114, 0.1);
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .sidebar #links.active:before,
+        .bar #elem.active:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #1e3c72;
+        }
+        
+        .bar #elem {
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
 <body>
     <!-- PC VER -->
@@ -14,44 +52,43 @@
             <div id="space-sidebar"></div>
             <div id="logo">Negr</div>
             <div id="space-sidebar">спорт 1296</div>
-            <div class='element'><div id="links" onclick="window.location.href='index.html'">спорт</div>
-            <div id="links">Dota 2</div>
-            <div id="links">CS 2</div>
-            <div id="links">Brawl Stars</div>
-            <div id="links">Valorant</div>
-            <div id="links" onclick="window.location.href='./login/login.html'">вход</div>
+            <div class='element'>
+                <div id="links" onclick="window.location.href='index.html'">спорт</div>
+                <div id="links" data-game="all">Все дисциплины</div>
+                <div id="links" data-game="Dota 2">Dota 2</div>
+                <div id="links" data-game="CS 2">CS 2</div>
+                <div id="links" data-game="Brawl Stars">Brawl Stars</div>
+                <div id="links" data-game="Valorant">Valorant</div>
+                <div id="links" onclick="window.location.href='./login/login.html'">вход</div>
             </div>
             <div class="NEWSsidebar"><div class="NEWSsidebartitle"><center>НОВОСТИ</center></div>
-            <div class="NEWSsidebarnews">
-                <div id="dates">24.02.2022</div>
-                <div id="header">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam, eum.</div>
-            </div>
-            <div class="NEWSsidebarnews">
-                <div id="dates">24.12.2024</div>
-                <div id="header">HOKAGE LEAN IS AVAILABLE</div>
-            </div>
-            <div class="NEWSsidebarnews"></div>
+            <!-- Новости будут загружены динамически -->
         </div>
 
         </div></div>
-    <div class="maintext"></div>
+    <div class="maintext main-content cybersport-content">
+        <!-- Здесь будут отображаться турниры для десктопной версии -->
+    </div>
     <!-- MOBILE VER -->
     <div class="button-sidebar" onclick="toggleSidebar()" id="button">X</div>
     <div class="bar" id="bar">
         <div id="space-top"></div>
         <div id="space-bottom">
         <div id="elem" class="even-elem" onclick="window.location.href='index.html'">спорт</div>
-        <div id="elem">Dota 2</div>
-        <div id="elem" class="even-elem">CS 2</div>
-        <div id="elem">Brawl Stars</div>
-        <div id="elem" class="even-elem">Valorant</div>
+        <div id="elem" data-game="all">Все дисциплины</div>
+        <div id="elem" data-game="Dota 2">Dota 2</div>
+        <div id="elem" class="even-elem" data-game="CS 2">CS 2</div>
+        <div id="elem" data-game="Brawl Stars">Brawl Stars</div>
+        <div id="elem" class="even-elem" data-game="Valorant">Valorant</div>
         <div id="elem" onclick="window.location.href='./login/login.html'"><b>вход</b></div>
         </div>
         
     </div>
-    <div class="mainmobile"></div>
-
+    <div class="mainmobile">
+        <!-- Здесь будут отображаться турниры для мобильной версии -->
+    </div>
 
     <script src="./index.js"></script>
+    <script src="./cybersport.js"></script>
 </body>
 </html>

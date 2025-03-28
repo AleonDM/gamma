@@ -1,0 +1,378 @@
+/* Основные стили для страницы киберспорта */
+.cybersport-content {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.discipline-title {
+    font-family: 'News', sans-serif;
+    font-size: 36px;
+    color: #1e3c72;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #1e3c72;
+    width: 100%;
+    text-align: center;
+    max-width: 800px;
+}
+
+.discipline-title-mobile {
+    font-family: 'News', sans-serif;
+    font-size: 28px;
+    color: #1e3c72;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1e3c72;
+    text-align: center;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* Убираем стили maintext, чтобы они не конфликтовали */
+.cybersport-content.maintext {
+    margin-left: 40%; /* Соответствует ширине сайдбара */
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60%; /* Оставшаяся ширина экрана */
+    box-sizing: border-box;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+/* Основные контейнеры */
+.tournaments-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    width: 100%;
+    justify-content: center;
+}
+
+.tournaments-container-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.tournament-card, .tournament-card-mobile {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.tournament-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tournament-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 15px 20px;
+    position: relative;
+}
+
+.tournament-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.tournament-game {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.tournament-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.tournament-date-time {
+    display: flex;
+    flex-direction: column;
+}
+
+.tournament-date {
+    font-weight: bold;
+    color: #1e3c72;
+}
+
+.tournament-time {
+    color: #2a5298;
+    margin-top: 5px;
+}
+
+.tournament-status {
+    padding: 5px 10px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.status-planned {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.status-ongoing {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-finished {
+    background-color: #eeeeee;
+    color: #616161;
+}
+
+.status-canceled {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-postponed {
+    background-color: #fff8e1;
+    color: #f57f17;
+}
+
+.tournament-teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    flex-direction: row;
+}
+
+.team-name {
+    font-weight: bold;
+    color: #1e3c72;
+    text-align: center;
+    padding: 10px 15px;
+    width: 40%;
+}
+
+.tournament-score {
+    font-weight: bold;
+    font-size: 22px;
+    color: #1e3c72;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20%;
+    white-space: nowrap; /* Предотвращает разрыв счета */
+    margin: 0 auto; /* Центрирование */
+}
+
+.empty-tournaments {
+    grid-column: 1 / -1;
+    padding: 30px;
+    text-align: center;
+    color: #666;
+    background: rgba(30, 60, 114, 0.05);
+    border-radius: 10px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.create-tournament-button, .create-tournament-button-mobile {
+    display: block;
+    width: 200px;
+    margin: 30px auto;
+    padding: 15px 25px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.create-tournament-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.create-tournament-button-mobile {
+    width: 80%;
+    margin: 20px auto;
+}
+
+/* Медиа-запросы для адаптивности */
+@media (max-width: 768px) {
+    .cybersport-content.maintext {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    .discipline-title {
+        font-size: 28px;
+        max-width: 100%;
+    }
+    
+    .tournaments-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .tournament-card {
+        max-width: 100%;
+    }
+    
+    .discipline-title-mobile {
+        font-size: 24px;
+        margin-top: 20px;
+    }
+    
+    .tournament-card-mobile {
+        margin-bottom: 15px;
+        width: 90%;
+    }
+    
+    .tournament-header {
+        padding: 12px 15px;
+    }
+    
+    .tournament-title {
+        font-size: 18px;
+    }
+    
+    .tournament-teams {
+        flex-direction: row;
+        padding: 15px;
+    }
+    
+    .team-name {
+        width: 40%;
+        margin-bottom: 0;
+    }
+    
+    .tournament-score {
+        margin: 0;
+        font-size: 20px;
+        width: 20%;
+    }
+}
+
+@media (max-width: 1200px) {
+    .tournaments-container {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        max-width: 900px;
+    }
+    
+    .tournament-card {
+        max-width: 350px;
+    }
+}
+
+@media (max-width: 992px) {
+    .tournaments-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+}
+
+/* Специальное выделение для активных дисциплин */
+.sidebar #links.active,
+.bar #elem.active {
+    background: rgba(30, 60, 114, 0.1);
+    font-weight: bold;
+    position: relative;
+}
+
+/* Медиа-запрос для адаптации к средним экранам */
+@media screen and (max-width: 900px) {
+    .cybersport-content.maintext {
+        margin-left: 300px;
+        width: calc(100% - 300px);
+    }
+    
+    .tournaments-container {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
+
+/* Медиа-запрос для адаптации к мобильным устройствам */
+@media (max-width: 768px) {
+    .cybersport-content.maintext {
+        margin-left: 0;
+        padding: 15px;
+        width: 100%;
+    }
+    
+    .tournaments-container {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+    
+    .tournament-card, .tournament-card-mobile {
+        max-width: 100%;
+    }
+    
+    .discipline-title {
+        font-size: 28px;
+        max-width: 100%;
+    }
+}
+
+/* Стили для разделения турниров по секциям */
+.tournaments-section {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    color: #1e3c72;
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(30, 60, 114, 0.2);
+}
+
+/* Заголовок текущих турниров */
+.section-title.ongoing {
+    color: #2e7d32;
+}
+
+/* Заголовок запланированных турниров */
+.section-title.planned {
+    color: #1565c0;
+}
+
+/* Заголовок перенесенных турниров */
+.section-title.postponed {
+    color: #f57f17;
+}
+
+/* Заголовок завершенных турниров */
+.section-title.finished {
+    color: #616161;
+}
+
+/* Заголовок отмененных турниров */
+.section-title.canceled {
+    color: #c62828;
+} 

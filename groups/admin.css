@@ -135,6 +135,25 @@ button:hover {
 
 .tournament-game {
     font-size: 0.8em;
-    color: rgba(255, 255, 255, 0.7);
+    color: #1e3c72;
     margin-left: 5px;
+}
+
+.tournament-score input {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.tournament-score button {
+    background-color: #007bff;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.tournament-score button:hover {
+    background-color: #0056b3;
 }

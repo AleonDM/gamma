@@ -91,6 +91,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                         <div class="vs">VS</div>
                         <div class="team">${tournament.team2}</div>
                     </div>
+                    ${(tournament.score_team1 !== undefined && tournament.score_team2 !== undefined) ? 
+                      `<div class="tournament-score" style="margin-top: 15px; font-size: 24px; font-weight: bold; color: #1e3c72;">
+                        ${tournament.score_team1} : ${tournament.score_team2}
+                       </div>` : ''}
                 `;
                 tournamentsList.appendChild(tournamentBox);
             });
@@ -115,6 +119,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                         <div class="vs">VS</div>
                         <div class="team">${tournament.team2}</div>
                     </div>
+                    ${(tournament.score_team1 !== undefined && tournament.score_team2 !== undefined) ? 
+                      `<div class="tournament-score" style="margin-top: 15px; font-size: 24px; font-weight: bold; color: #1e3c72;">
+                        ${tournament.score_team1} : ${tournament.score_team2}
+                       </div>` : ''}
                 `;
                 tournamentsListMobile.appendChild(tournamentBox);
             });
