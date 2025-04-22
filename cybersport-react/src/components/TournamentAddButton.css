@@ -1,0 +1,82 @@
+.add-tournament-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 1rem 0;
+  font-family: var(--font-buttons);
+  font-size: 16px;
+  width: 100%;
+  max-width: 250px;
+}
+
+.add-tournament-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.add-tournament-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.add-icon {
+  font-size: 20px;
+  margin-right: 8px;
+  font-weight: 700;
+}
+
+/* Стили для мобильной версии */
+.add-tournament-btn.mobile {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: auto;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+  z-index: 90;
+  padding: 12px 20px;
+}
+
+.add-tournament-btn.mobile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4);
+}
+
+.add-tournament-btn.mobile:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);
+}
+
+/* Настройки для разных размеров экрана */
+@media (max-width: 768px) {
+  .add-tournament-btn:not(.mobile) {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px 0;
+  }
+}
+
+/* Анимация появления для мобильной кнопки */
+@keyframes slideIn {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.add-tournament-btn.mobile {
+  animation: slideIn 0.5s ease forwards;
+} 

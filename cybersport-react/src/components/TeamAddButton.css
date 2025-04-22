@@ -1,0 +1,44 @@
+.add-team-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 1rem 0;
+  font-family: var(--font-buttons);
+  font-size: 16px;
+  width: 100%;
+  max-width: 250px;
+}
+
+.add-team-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.add-team-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.add-icon {
+  font-size: 20px;
+  margin-right: 8px;
+  font-weight: 700;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .add-team-btn {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px 0;
+  }
+} 

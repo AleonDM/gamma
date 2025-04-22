@@ -1,0 +1,26 @@
+.news-add-button {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  margin: 15px 0;
+  cursor: pointer;
+  color: #fff;
+  font-family: var(--font-text);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.news-add-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.news-add-button.mobile {
+  background: rgba(66, 153, 225, 0.1);
+  color: #3182ce;
+  border: 1px dashed #3182ce;
+}
+
+.news-add-button.mobile:hover {
+  background: rgba(66, 153, 225, 0.2);
+} 

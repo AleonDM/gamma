@@ -1,0 +1,17 @@
+.admin-logout-button {
+  background: rgba(229, 62, 62, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  margin: 15px 0;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'News', sans-serif;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.admin-logout-button:hover {
+  background: rgba(229, 62, 62, 0.5);
+  color: white;
+} 

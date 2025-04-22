@@ -1,0 +1,268 @@
+.tournament-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stage-block {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.stage-block.active {
+  border-left: 4px solid #2c7a7b;
+}
+
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  background-color: #f8fafc;
+  transition: background-color 0.2s ease;
+}
+
+.stage-header:hover {
+  background-color: #f1f5f9;
+}
+
+.stage-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stage-info h3 {
+  font-size: 1.125rem;
+  color: #2d3748;
+  margin: 0;
+  font-weight: 600;
+}
+
+.stage-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-not-started {
+  background-color: #f7fafc;
+  color: #718096;
+}
+
+.status-in-progress {
+  background-color: #e6fffa;
+  color: #2c7a7b;
+}
+
+.status-completed {
+  background-color: #f0fff4;
+  color: #276749;
+}
+
+.status-canceled {
+  background-color: #fff5f5;
+  color: #c53030;
+}
+
+.stage-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.stage-edit-button,
+.stage-delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #718096;
+  transition: all 0.2s ease;
+}
+
+.stage-edit-button:hover {
+  color: #2b6cb0;
+  background-color: #ebf8ff;
+}
+
+.stage-delete-button:hover {
+  color: #c53030;
+  background-color: #fff5f5;
+}
+
+.expand-icon {
+  color: #718096;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-content {
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.stages-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  color: #718096;
+}
+
+.loading-spinner-sm {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1e3c72;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 0.5rem;
+}
+
+.stages-error {
+  padding: 1rem;
+  background-color: #fff5f5;
+  color: #c53030;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.stages-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #718096;
+  background-color: #f8fafc;
+  border-radius: 8px;
+}
+
+.groups-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.groups-container h4 {
+  font-size: 1rem;
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
+
+.group-block {
+  background-color: #f8fafc;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  background-color: #f1f5f9;
+}
+
+.group-header h5 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.group-content {
+  padding: 1rem;
+}
+
+.group-teams {
+  margin-bottom: 1.5rem;
+}
+
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.standings-table th {
+  text-align: left;
+  padding: 0.5rem;
+  font-weight: 600;
+  color: #4a5568;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.standings-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #4a5568;
+}
+
+.standings-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.standings-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.bracket-container {
+  padding: 1rem 0;
+}
+
+.bracket-container h4 {
+  font-size: 1rem;
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
+
+.no-format {
+  padding: 2rem;
+  text-align: center;
+  color: #718096;
+  background-color: #f8fafc;
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .stage-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .stage-header {
+    padding: 1rem;
+  }
+  
+  .stage-content {
+    padding: 1rem;
+  }
+  
+  .standings-table {
+    font-size: 0.75rem;
+  }
+  
+  .standings-table th, 
+  .standings-table td {
+    padding: 0.35rem;
+  }
+} 

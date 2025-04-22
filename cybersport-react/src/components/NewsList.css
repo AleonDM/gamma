@@ -1,0 +1,115 @@
+.loading-news {
+  color: rgba(255, 255, 255, 0.7);
+  padding: 15px;
+  text-align: center;
+  font-size: 14px;
+  font-family: var(--font-text);
+}
+
+.error-message {
+  color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-family: var(--font-text);
+}
+
+/* Стили для мобильного представления */
+@media (max-width: 768px) {
+  .loading-news,
+  .error-message {
+    color: #3182ce;
+    background: rgba(66, 153, 225, 0.1);
+    margin: 15px 0;
+  }
+  
+  .error-message {
+    color: #e53e3e;
+    background: rgba(245, 101, 101, 0.1);
+  }
+}
+
+.news-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.news-list-title {
+  font-size: 1.2rem;
+  color: #ffffff;
+  margin-bottom: 15px;
+  font-family: 'Buttons', sans-serif;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(74, 136, 208, 0.5);
+  padding-bottom: 10px;
+}
+
+.news-list-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.news-list-error {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #ff6b6b;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin: 10px 0;
+}
+
+.no-news-message {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 20px 0;
+  font-style: italic;
+}
+
+.news-admin-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.news-add-button {
+  background-color: #4a88d0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.news-add-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.news-add-button:hover {
+  background-color: #3b7bc5;
+}
+
+@media (max-width: 768px) {
+  .news-list {
+    gap: 12px;
+  }
+  
+  .news-list-title {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+} 

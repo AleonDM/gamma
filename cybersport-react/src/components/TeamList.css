@@ -1,0 +1,46 @@
+.team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.no-teams {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.no-teams h3 {
+  font-size: 20px;
+  color: #1e3c72;
+  margin-bottom: 10px;
+  font-family: var(--font-buttons);
+}
+
+.no-teams p {
+  color: #4a5568;
+  font-size: 16px;
+  font-family: var(--font-text);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .team-list {
+    margin-top: 10px;
+  }
+  
+  .no-teams {
+    padding: 20px;
+  }
+  
+  .no-teams h3 {
+    font-size: 18px;
+  }
+  
+  .no-teams p {
+    font-size: 14px;
+  }
+} 

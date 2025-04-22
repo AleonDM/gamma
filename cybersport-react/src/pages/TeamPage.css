@@ -1,0 +1,331 @@
+.team-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.team-title-block h1 {
+  font-size: 2.5rem;
+  color: #1e3c72;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+  font-family: var(--font-buttons);
+}
+
+.team-code {
+  font-size: 1rem;
+  color: #4a5568;
+  font-weight: 500;
+  background-color: rgba(0, 0, 0, 0.05);
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+}
+
+.team-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.logout-button, .back-button, .login-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+  font-family: var(--font-buttons);
+}
+
+.logout-button {
+  background-color: #e53e3e;
+  color: white;
+}
+
+.logout-button:hover {
+  background-color: #c53030;
+}
+
+.back-button {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.back-button:hover {
+  background-color: #cbd5e0;
+}
+
+.team-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.team-section {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.team-section:last-child {
+  margin-bottom: 0;
+}
+
+.team-section h2 {
+  font-size: 1.5rem;
+  color: #1e3c72;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-family: var(--font-buttons);
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.team-members-list, .team-tournaments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+}
+
+.team-member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.team-member-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.member-info {
+  display: flex;
+  align-items: center;
+}
+
+.member-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #2d3748;
+  margin-right: 0.5rem;
+}
+
+.member-role {
+  color: #718096;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.team-tournament-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.team-tournament-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tournament-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tournament-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #2d3748;
+}
+
+.tournament-date {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.tournament-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tournament-place {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.place-1 {
+  background-color: #ffd700;
+  color: #664d03;
+}
+
+.place-2 {
+  background-color: #c0c0c0;
+  color: #374151;
+}
+
+.place-3 {
+  background-color: #cd7f32;
+  color: #713f12;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+  font-style: italic;
+  background-color: #f8fafc;
+  border-radius: 8px;
+}
+
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.error p {
+  color: #e53e3e;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.login-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.login-form input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
+
+.login-button {
+  background-color: #1e3c72;
+  color: white;
+}
+
+.login-button:hover {
+  background-color: #2a5298;
+}
+
+/* Стили для статусов турниров */
+.status-upcoming {
+  background-color: #ebf8ff;
+  color: #3182ce;
+}
+
+.status-registration {
+  background-color: #e6fffa;
+  color: #319795;
+}
+
+.status-live {
+  background-color: #fef5f5;
+  color: #e53e3e;
+}
+
+.status-completed {
+  background-color: #f0fff4;
+  color: #38a169;
+}
+
+@media (max-width: 768px) {
+  .team-page {
+    padding: 1rem;
+  }
+  
+  .team-header {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .team-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .team-content {
+    gap: 1.5rem;
+  }
+  
+  .team-section {
+    padding: 1.5rem 1rem;
+  }
+  
+  .team-members-list, .team-tournaments-list {
+    padding: 0.75rem;
+  }
+  
+  .team-title-block h1 {
+    font-size: 1.75rem;
+    text-align: center;
+  }
+  
+  .team-code {
+    display: block;
+    text-align: center;
+  }
+  
+  .login-form {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .login-form input,
+  .logout-button,
+  .back-button,
+  .login-button {
+    width: 100%;
+  }
+  
+  .tournament-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+} 

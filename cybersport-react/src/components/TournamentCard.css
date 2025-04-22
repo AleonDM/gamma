@@ -1,0 +1,243 @@
+.tournament-card {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+  position: relative;
+  cursor: pointer;
+}
+
+.tournament-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tournament-card.archived {
+  opacity: 0.7;
+}
+
+.tournament-header {
+  position: relative;
+  height: 120px;
+  background-color: #2a5298;
+  overflow: hidden;
+}
+
+/* Цветовые градиенты для разных игр */
+.tournament-header.game-dota2 {
+  background: linear-gradient(135deg, #b71c1c 0%, #7f0000 100%);
+}
+
+.tournament-header.game-cs2 {
+  background: linear-gradient(135deg, #283593 0%, #1a237e 100%);
+}
+
+.tournament-header.game-valorant {
+  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+}
+
+.tournament-header.game-brawlstars {
+  background: linear-gradient(135deg, #7b1fa2 0%, #4a148c 100%);
+}
+
+.tournament-header.game-other {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+.tournament-header-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tournament-status {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  align-self: flex-start;
+  text-transform: uppercase;
+}
+
+.status-upcoming {
+  background-color: #3949ab;
+}
+
+.status-active {
+  background-color: #d32f2f;
+}
+
+.status-completed {
+  background-color: #388e3c;
+}
+
+.status-canceled {
+  background-color: #757575;
+}
+
+.tournament-date {
+  color: white;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tournament-discipline {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  align-self: flex-end;
+}
+
+.tournament-content {
+  padding: 1.25rem;
+}
+
+.tournament-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e3c72;
+  line-height: 1.4;
+}
+
+.tournament-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tournament-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+.tournament-detail-icon {
+  font-size: 1.1rem;
+}
+
+.tournament-detail-value {
+  font-weight: 500;
+}
+
+.tournament-location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #4a5568;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.location-icon {
+  color: #2a5298;
+}
+
+.tournament-description {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.tournament-description p {
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tournament-footer {
+  padding: 0.75rem 1.25rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #f0f0f0;
+}
+
+.tournament-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.tournament-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-button {
+  background-color: #edf2f7;
+  color: #1e3c72;
+}
+
+.edit-button:hover {
+  background-color: #e2e8f0;
+}
+
+.archive-button {
+  background-color: rgba(229, 62, 62, 0.1);
+  color: #e53e3e;
+}
+
+.archive-button:hover {
+  background-color: rgba(229, 62, 62, 0.2);
+}
+
+/* Для мобильных устройств */
+@media (max-width: 480px) {
+  .tournament-card {
+    margin-bottom: 0.75rem;
+  }
+  
+  .tournament-header {
+    height: 100px;
+  }
+  
+  .tournament-title {
+    font-size: 1.1rem;
+  }
+  
+  .tournament-content {
+    padding: 1rem;
+  }
+  
+  .tournament-footer {
+    padding: 0.5rem 1rem;
+  }
+  
+  .tournament-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+.tournament-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  margin-bottom: 1.5rem;
+} 
