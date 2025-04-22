@@ -161,13 +161,6 @@ const TournamentCard = ({ tournament, isAdmin, onTournamentUpdated }) => {
             <h3 className="tournament-title">{tournament.name || 'Без названия'}</h3>
             
             <div className="tournament-details">
-              {(tournament.prize_pool > 0) && (
-                <div className="tournament-detail">
-                  <span className="tournament-detail-icon">💰</span>
-                  <span className="tournament-detail-value">{tournament.prize_pool.toLocaleString('ru-RU')} ₽</span>
-                </div>
-              )}
-              
               {tournament.organizer && (
                 <div className="tournament-detail">
                   <span className="tournament-detail-icon">🏢</span>

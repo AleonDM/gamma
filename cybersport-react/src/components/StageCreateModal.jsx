@@ -178,8 +178,6 @@ const StageCreateModal = ({ tournamentId, stage, onClose, onSave }) => {
       setLoading(true);
       setError(null);
       
-      let newStageId;
-      
       if (isNew) {
         // Создаем новый этап без групп сначала
         const stageToCreate = {
@@ -192,7 +190,7 @@ const StageCreateModal = ({ tournamentId, stage, onClose, onSave }) => {
         };
         
         const response = await axios.post(`/api/tournaments/${tournamentId}/stages`, stageToCreate);
-        newStageId = response.data.id;
+        const newStageId = response.data.id;
         
         // Затем создаем группы для этого этапа
         if (formData.format === 'groups' && formData.groups.length > 0) {
@@ -203,7 +201,17 @@ const StageCreateModal = ({ tournamentId, stage, onClose, onSave }) => {
                 teams: group.teams || []
               };
               
-              await axios.post(`/api/tournaments/stages/${newStageId}/groups`, groupToCreate);
+              const groupResponse = await axios.post(`/api/tournaments/stages/${newStageId}/groups`, groupToCreate);
+              const newGroupId = groupResponse.data.id;
+              
+              // Добавляем команды в группу
+              if (group.teams && group.teams.length > 0) {
+                for (const team of group.teams) {
+                  await axios.post(`/api/tournaments/stages/${newStageId}/groups/${newGroupId}/teams`, {
+                    team_id: team.id
+                  });
+                }
+              }
             }
           } catch (groupError) {
             console.error('Ошибка при создании групп:', groupError);
@@ -223,10 +231,74 @@ const StageCreateModal = ({ tournamentId, stage, onClose, onSave }) => {
         
         await axios.put(`/api/tournaments/${tournamentId}/stages/${stage.id}`, updatedStage);
         
-        // Обновляем группы отдельно
-        if (formData.format === 'groups' && stage.groups) {
-          // Здесь нужна более сложная логика для обработки обновления/удаления/создания групп
-          // Можно реализовать по необходимости
+        // Обновляем группы
+        if (formData.format === 'groups') {
+          try {
+            // Получаем текущие группы этапа
+            const existingGroupsResponse = await axios.get(`/api/tournaments/stages/${stage.id}/groups`);
+            const existingGroups = existingGroupsResponse.data;
+            const existingGroupIds = existingGroups.map(g => g.id);
+            
+            // Обрабатываем каждую группу в форме
+            for (const group of formData.groups) {
+              if (group.id) {
+                // Обновляем существующую группу
+                await axios.put(`/api/tournaments/stages/${stage.id}/groups/${group.id}`, {
+                  name: group.name
+                });
+                
+                // Удаляем все команды из группы и добавляем новые
+                // Сначала получаем текущие команды
+                const currentTeamsResponse = await axios.get(`/api/tournaments/stages/${stage.id}/groups/${group.id}/teams`);
+                const currentTeams = currentTeamsResponse.data;
+                
+                // Удаляем команды, которых нет в новом списке
+                for (const currentTeam of currentTeams) {
+                  const teamExists = group.teams.some(t => t.id === currentTeam.id);
+                  if (!teamExists) {
+                    await axios.delete(`/api/tournaments/stages/${stage.id}/groups/${group.id}/teams/${currentTeam.id}`);
+                  }
+                }
+                
+                // Добавляем новые команды
+                for (const team of group.teams) {
+                  const teamExists = currentTeams.some(t => t.id === team.id);
+                  if (!teamExists) {
+                    await axios.post(`/api/tournaments/stages/${stage.id}/groups/${group.id}/teams`, {
+                      team_id: team.id
+                    });
+                  }
+                }
+                
+                // Удаляем из списка ID, чтобы не удалить группу позже
+                const index = existingGroupIds.indexOf(group.id);
+                if (index !== -1) {
+                  existingGroupIds.splice(index, 1);
+                }
+              } else {
+                // Создаем новую группу
+                const newGroupResponse = await axios.post(`/api/tournaments/stages/${stage.id}/groups`, {
+                  name: group.name
+                });
+                const newGroupId = newGroupResponse.data.id;
+                
+                // Добавляем команды в новую группу
+                for (const team of group.teams) {
+                  await axios.post(`/api/tournaments/stages/${stage.id}/groups/${newGroupId}/teams`, {
+                    team_id: team.id
+                  });
+                }
+              }
+            }
+            
+            // Удаляем группы, которых нет в обновленном списке
+            for (const groupId of existingGroupIds) {
+              await axios.delete(`/api/tournaments/stages/${stage.id}/groups/${groupId}`);
+            }
+          } catch (groupsError) {
+            console.error('Ошибка при обновлении групп:', groupsError);
+            setError('Этап обновлен, но возникла ошибка при обновлении групп.');
+          }
         }
       }
       

@@ -92,16 +92,14 @@ const TeamPage = () => {
                   name: "Турнир по Dota 2",
                   discipline: "dota2",
                   date: new Date().toISOString(),
-                  status: "upcoming",
-                  prize_pool: "10000 ₽"
+                  status: "upcoming"
                 },
                 {
                   id: 2,
                   name: "Турнир по CS 2",
                   discipline: "cs2",
                   date: new Date().toISOString(),
-                  status: "completed",
-                  prize_pool: "5000 ₽"
+                  status: "completed"
                 }
               ]);
             }

@@ -1,35 +1,50 @@
 import { useState, useEffect } from 'react';
 import './TournamentSearch.css';
 
-const TournamentSearch = ({ onSearch, searchQuery, statusFilter, isMobile = false }) => {
-  const [localQuery, setLocalQuery] = useState(searchQuery || '');
-  const [localStatus, setLocalStatus] = useState(statusFilter || 'all');
+const TournamentSearch = ({ onSearch, searchQuery = '', statusFilter = 'all', initialQuery, initialStatus, isMobile = false }) => {
+  // Используем начальные значения из пропсов или значения по умолчанию
+  const [localQuery, setLocalQuery] = useState(initialQuery || searchQuery || '');
+  const [localStatus, setLocalStatus] = useState(initialStatus || statusFilter || 'all');
   
   // Обновляем локальное состояние при изменении пропсов
   useEffect(() => {
-    setLocalQuery(searchQuery || '');
-    setLocalStatus(statusFilter || 'all');
-  }, [searchQuery, statusFilter]);
+    if (searchQuery !== undefined) {
+      setLocalQuery(searchQuery);
+    }
+    if (statusFilter !== undefined) {
+      setLocalStatus(statusFilter);
+    }
+    if (initialQuery !== undefined) {
+      setLocalQuery(initialQuery);
+    }
+    if (initialStatus !== undefined) {
+      setLocalStatus(initialStatus);
+    }
+  }, [searchQuery, statusFilter, initialQuery, initialStatus]);
   
-  const handleSearch = () => {
+  const handleSearch = (e) => {
+    e && e.preventDefault(); // Предотвращаем отправку формы, если событие передано
+    console.log('Выполняется поиск:', { localQuery, localStatus });
     onSearch(localQuery, localStatus);
   };
   
   const handleReset = () => {
     setLocalQuery('');
     setLocalStatus('all');
+    console.log('Сброс фильтров поиска');
     onSearch('', 'all');
   };
   
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSearch();
     }
   };
   
   return (
     <div className={`search-container${isMobile ? '-mobile' : ''}`}>
-      <div className={`search-form${isMobile ? '-mobile' : ''}`}>
+      <form className={`search-form${isMobile ? '-mobile' : ''}`} onSubmit={handleSearch}>
         <input
           type="text"
           placeholder={isMobile ? "Поиск по названию..." : "Поиск по названию турнира..."}
@@ -55,12 +70,13 @@ const TournamentSearch = ({ onSearch, searchQuery, statusFilter, isMobile = fals
         {isMobile ? (
           <div className="mobile-buttons">
             <button
-              onClick={handleSearch}
+              type="submit"
               className="search-button-mobile"
             >
               Поиск
             </button>
             <button
+              type="button"
               onClick={handleReset}
               className="reset-button-mobile"
             >
@@ -70,12 +86,13 @@ const TournamentSearch = ({ onSearch, searchQuery, statusFilter, isMobile = fals
         ) : (
           <>
             <button
-              onClick={handleSearch}
+              type="submit"
               className="search-button"
             >
               Поиск
             </button>
             <button
+              type="button"
               onClick={handleReset}
               className="reset-button"
             >
@@ -83,7 +100,7 @@ const TournamentSearch = ({ onSearch, searchQuery, statusFilter, isMobile = fals
             </button>
           </>
         )}
-      </div>
+      </form>
     </div>
   );
 };

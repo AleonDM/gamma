@@ -52,13 +52,22 @@ app.get('/api/tournaments/:id', async (req, res) => {
   }
 });
 
-app.post('/api/tournaments', async (req, res) => {
+app.post('/api/tournaments', (req, res) => {
   try {
-    const newTournament = await db.createTournament(req.body);
+    const tournamentData = req.body;
+    // Убедимся, что обязательные поля присутствуют
+    if (!tournamentData.name) {
+      return res.status(400).json({ error: 'Название турнира обязательно' });
+    }
+    
+    // Здесь не проверяем prize_pool, так как это поле больше не используется
+    
+    const newTournament = db.createTournament(tournamentData);
+    
     res.status(201).json(newTournament);
-  } catch (error) {
-    console.error('Ошибка при создании турнира:', error);
-    res.status(500).json({ error: 'Ошибка сервера при создании турнира' });
+  } catch (err) {
+    console.error('Ошибка при создании турнира:', err);
+    res.status(500).json({ error: 'Не удалось создать турнир' });
   }
 });
 
@@ -228,20 +237,26 @@ app.delete('/api/news/:id', async (req, res) => {
 app.get('/api/tournaments/:tournamentId/stages', async (req, res) => {
   try {
     const { tournamentId } = req.params;
+    console.log(`Запрос на получение этапов для турнира ${tournamentId}`);
     
     // Проверяем, существует ли турнир
     const tournament = await db.getTournamentById(tournamentId);
     if (!tournament) {
+      console.log(`Турнир с ID ${tournamentId} не найден`);
       return res.status(404).json({ error: 'Турнир не найден' });
     }
     
     // Получаем этапы турнира
     try {
-      const stages = db.getStagesByTournamentId(tournamentId);
-      res.json(Array.isArray(stages) ? stages : []);
+      // Теперь используем асинхронную функцию с Promise
+      const stages = await db.getStagesByTournamentId(tournamentId);
+      console.log(`Получено ${stages.length} этапов для турнира ${tournamentId}`);
+      
+      res.json(stages);
     } catch (stageErr) {
       console.error('Ошибка при получении этапов турнира:', stageErr);
       // Возвращаем пустой массив вместо ошибки
+      console.log('Отправляем пустой массив из-за ошибки');
       res.json([]);
     }
   } catch (err) {
@@ -250,10 +265,10 @@ app.get('/api/tournaments/:tournamentId/stages', async (req, res) => {
   }
 });
 
-app.get('/api/tournaments/:tournamentId/stages/:stageId', (req, res) => {
+app.get('/api/tournaments/:tournamentId/stages/:stageId', async (req, res) => {
   try {
     const { stageId } = req.params;
-    const stage = db.getStageById(stageId);
+    const stage = await db.getStageById(stageId);
     
     if (!stage) {
       return res.status(404).json({ error: 'Этап не найден' });
@@ -266,11 +281,14 @@ app.get('/api/tournaments/:tournamentId/stages/:stageId', (req, res) => {
   }
 });
 
-app.post('/api/tournaments/:tournamentId/stages', (req, res) => {
+app.post('/api/tournaments/:tournamentId/stages', async (req, res) => {
   try {
     const { tournamentId } = req.params;
     const stageData = req.body;
-    const newStage = db.createStage({
+    
+    console.log('Создание этапа:', JSON.stringify(stageData));
+    
+    const newStage = await db.createStage({
       ...stageData,
       tournament_id: tournamentId
     });
@@ -282,12 +300,12 @@ app.post('/api/tournaments/:tournamentId/stages', (req, res) => {
   }
 });
 
-app.put('/api/tournaments/:tournamentId/stages/:stageId', (req, res) => {
+app.put('/api/tournaments/:tournamentId/stages/:stageId', async (req, res) => {
   try {
     const { stageId } = req.params;
     const stageData = req.body;
     
-    const updatedStage = db.updateStage(stageId, stageData);
+    const updatedStage = await db.updateStage(stageId, stageData);
     
     if (!updatedStage) {
       return res.status(404).json({ error: 'Этап не найден' });
@@ -300,15 +318,26 @@ app.put('/api/tournaments/:tournamentId/stages/:stageId', (req, res) => {
   }
 });
 
-app.delete('/api/tournaments/:tournamentId/stages/:stageId', (req, res) => {
+app.delete('/api/tournaments/:tournamentId/stages/:stageId', async (req, res) => {
   try {
-    const { stageId } = req.params;
-    const success = db.deleteStage(stageId);
+    const { tournamentId, stageId } = req.params;
+    console.log(`Запрос на удаление этапа ${stageId} из турнира ${tournamentId}`);
     
-    if (!success) {
-      return res.status(404).json({ error: 'Этап не найден' });
+    // Проверяем, существует ли турнир
+    const tournament = await db.getTournamentById(tournamentId);
+    if (!tournament) {
+      console.log(`Турнир с ID ${tournamentId} не найден`);
+      return res.status(404).json({ error: 'Турнир не найден' });
     }
     
+    const success = await db.deleteStage(stageId);
+    
+    if (!success) {
+      console.log(`Не удалось удалить этап ${stageId} (не найден или произошла ошибка)`);
+      return res.status(404).json({ error: 'Этап не найден или не может быть удален' });
+    }
+    
+    console.log(`Этап ${stageId} успешно удален`);
     res.json({ success: true });
   } catch (err) {
     console.error('Ошибка при удалении этапа:', err);
@@ -317,10 +346,10 @@ app.delete('/api/tournaments/:tournamentId/stages/:stageId', (req, res) => {
 });
 
 // API эндпоинты для групп в этапах
-app.get('/api/tournaments/stages/:stageId/groups', (req, res) => {
+app.get('/api/tournaments/stages/:stageId/groups', async (req, res) => {
   try {
     const { stageId } = req.params;
-    const groups = db.getGroupsByStageId(stageId);
+    const groups = await db.getGroupsByStageId(stageId);
     res.json(groups);
   } catch (err) {
     console.error('Ошибка при получении групп этапа:', err);
@@ -328,10 +357,10 @@ app.get('/api/tournaments/stages/:stageId/groups', (req, res) => {
   }
 });
 
-app.get('/api/tournaments/stages/:stageId/groups/:groupId', (req, res) => {
+app.get('/api/tournaments/stages/:stageId/groups/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
-    const group = db.getGroupById(groupId);
+    const group = await db.getGroupById(groupId);
     
     if (!group) {
       return res.status(404).json({ error: 'Группа не найдена' });
@@ -344,11 +373,11 @@ app.get('/api/tournaments/stages/:stageId/groups/:groupId', (req, res) => {
   }
 });
 
-app.post('/api/tournaments/stages/:stageId/groups', (req, res) => {
+app.post('/api/tournaments/stages/:stageId/groups', async (req, res) => {
   try {
     const { stageId } = req.params;
     const groupData = req.body;
-    const newGroup = db.createGroup({
+    const newGroup = await db.createGroup({
       ...groupData,
       stage_id: stageId
     });
@@ -360,12 +389,12 @@ app.post('/api/tournaments/stages/:stageId/groups', (req, res) => {
   }
 });
 
-app.put('/api/tournaments/stages/:stageId/groups/:groupId', (req, res) => {
+app.put('/api/tournaments/stages/:stageId/groups/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
     const groupData = req.body;
     
-    const updatedGroup = db.updateGroup(groupId, groupData);
+    const updatedGroup = await db.updateGroup(groupId, groupData);
     
     if (!updatedGroup) {
       return res.status(404).json({ error: 'Группа не найдена' });
@@ -378,10 +407,10 @@ app.put('/api/tournaments/stages/:stageId/groups/:groupId', (req, res) => {
   }
 });
 
-app.delete('/api/tournaments/stages/:stageId/groups/:groupId', (req, res) => {
+app.delete('/api/tournaments/stages/:stageId/groups/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
-    const success = db.deleteGroup(groupId);
+    const success = await db.deleteGroup(groupId);
     
     if (!success) {
       return res.status(404).json({ error: 'Группа не найдена' });
@@ -395,10 +424,10 @@ app.delete('/api/tournaments/stages/:stageId/groups/:groupId', (req, res) => {
 });
 
 // API эндпоинты для команд в группе
-app.get('/api/tournaments/stages/:stageId/groups/:groupId/teams', (req, res) => {
+app.get('/api/tournaments/stages/:stageId/groups/:groupId/teams', async (req, res) => {
   try {
     const { groupId } = req.params;
-    const teams = db.getTeamsByGroupId(groupId);
+    const teams = await db.getTeamsByGroupId(groupId);
     res.json(teams);
   } catch (err) {
     console.error('Ошибка при получении команд группы:', err);
@@ -406,11 +435,48 @@ app.get('/api/tournaments/stages/:stageId/groups/:groupId/teams', (req, res) => 
   }
 });
 
+// Добавить команду в группу
+app.post('/api/tournaments/stages/:stageId/groups/:groupId/teams', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { team_id } = req.body;
+    
+    if (!team_id) {
+      return res.status(400).json({ error: 'ID команды обязателен' });
+    }
+    
+    const result = await db.addTeamToGroup(groupId, team_id);
+    
+    if (!result) {
+      return res.status(409).json({ error: 'Команда уже добавлена в группу' });
+    }
+    
+    res.status(201).json({ success: true });
+  } catch (err) {
+    console.error('Ошибка при добавлении команды в группу:', err);
+    res.status(500).json({ error: 'Не удалось добавить команду в группу' });
+  }
+});
+
+// Удалить команду из группы
+app.delete('/api/tournaments/stages/:stageId/groups/:groupId/teams/:teamId', async (req, res) => {
+  try {
+    const { groupId, teamId } = req.params;
+    
+    const result = await db.removeTeamFromGroup(groupId, teamId);
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Ошибка при удалении команды из группы:', err);
+    res.status(500).json({ error: 'Не удалось удалить команду из группы' });
+  }
+});
+
 // API эндпоинты для матчей этапа/группы
-app.get('/api/tournaments/stages/:stageId/matches', (req, res) => {
+app.get('/api/tournaments/stages/:stageId/matches', async (req, res) => {
   try {
     const { stageId } = req.params;
-    const matches = db.getMatchesByStageId(stageId);
+    const matches = await db.getMatchesByStageId(stageId);
     res.json(matches);
   } catch (err) {
     console.error('Ошибка при получении матчей этапа:', err);
@@ -418,10 +484,10 @@ app.get('/api/tournaments/stages/:stageId/matches', (req, res) => {
   }
 });
 
-app.get('/api/tournaments/stages/:stageId/groups/:groupId/matches', (req, res) => {
+app.get('/api/tournaments/stages/:stageId/groups/:groupId/matches', async (req, res) => {
   try {
     const { groupId } = req.params;
-    const matches = db.getMatchesByGroupId(groupId);
+    const matches = await db.getMatchesByGroupId(groupId);
     res.json(matches);
   } catch (err) {
     console.error('Ошибка при получении матчей группы:', err);
@@ -429,10 +495,10 @@ app.get('/api/tournaments/stages/:stageId/groups/:groupId/matches', (req, res) =
   }
 });
 
-app.get('/api/tournaments/stages/:stageId/matches/:matchId', (req, res) => {
+app.get('/api/tournaments/stages/:stageId/matches/:matchId', async (req, res) => {
   try {
     const { matchId } = req.params;
-    const match = db.getMatchById(matchId);
+    const match = await db.getMatchById(matchId);
     
     if (!match) {
       return res.status(404).json({ error: 'Матч не найден' });
@@ -445,11 +511,11 @@ app.get('/api/tournaments/stages/:stageId/matches/:matchId', (req, res) => {
   }
 });
 
-app.post('/api/tournaments/stages/:stageId/matches', (req, res) => {
+app.post('/api/tournaments/stages/:stageId/matches', async (req, res) => {
   try {
     const { stageId } = req.params;
     const matchData = req.body;
-    const newMatch = db.createMatch({
+    const newMatch = await db.createMatch({
       ...matchData,
       stage_id: stageId,
       group_id: null
@@ -462,11 +528,11 @@ app.post('/api/tournaments/stages/:stageId/matches', (req, res) => {
   }
 });
 
-app.post('/api/tournaments/stages/:stageId/groups/:groupId/matches', (req, res) => {
+app.post('/api/tournaments/stages/:stageId/groups/:groupId/matches', async (req, res) => {
   try {
     const { stageId, groupId } = req.params;
     const matchData = req.body;
-    const newMatch = db.createMatch({
+    const newMatch = await db.createMatch({
       ...matchData,
       stage_id: stageId,
       group_id: groupId
@@ -479,12 +545,12 @@ app.post('/api/tournaments/stages/:stageId/groups/:groupId/matches', (req, res) 
   }
 });
 
-app.put('/api/tournaments/stages/:stageId/matches/:matchId', (req, res) => {
+app.put('/api/tournaments/stages/:stageId/matches/:matchId', async (req, res) => {
   try {
     const { matchId } = req.params;
     const matchData = req.body;
     
-    const updatedMatch = db.updateMatch(matchId, matchData);
+    const updatedMatch = await db.updateMatch(matchId, matchData);
     
     if (!updatedMatch) {
       return res.status(404).json({ error: 'Матч не найден' });
@@ -497,12 +563,12 @@ app.put('/api/tournaments/stages/:stageId/matches/:matchId', (req, res) => {
   }
 });
 
-app.put('/api/tournaments/stages/:stageId/groups/:groupId/matches/:matchId', (req, res) => {
+app.put('/api/tournaments/stages/:stageId/groups/:groupId/matches/:matchId', async (req, res) => {
   try {
     const { matchId } = req.params;
     const matchData = req.body;
     
-    const updatedMatch = db.updateMatch(matchId, matchData);
+    const updatedMatch = await db.updateMatch(matchId, matchData);
     
     if (!updatedMatch) {
       return res.status(404).json({ error: 'Матч не найден' });
@@ -515,10 +581,10 @@ app.put('/api/tournaments/stages/:stageId/groups/:groupId/matches/:matchId', (re
   }
 });
 
-app.delete('/api/tournaments/stages/:stageId/matches/:matchId', (req, res) => {
+app.delete('/api/tournaments/stages/:stageId/matches/:matchId', async (req, res) => {
   try {
     const { matchId } = req.params;
-    const success = db.deleteMatch(matchId);
+    const success = await db.deleteMatch(matchId);
     
     if (!success) {
       return res.status(404).json({ error: 'Матч не найден' });

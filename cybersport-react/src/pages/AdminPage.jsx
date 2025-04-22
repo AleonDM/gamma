@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TournamentList from '../components/TournamentList';
 import TournamentSearch from '../components/TournamentSearch';
 import TournamentAddButton from '../components/TournamentAddButton';
-import TeamList from '../components/TeamList';
+import AdminTeamManagement from '../components/AdminTeamManagement';
 import './AdminPage.css';
 
 const AdminPage = ({ isAdmin }) => {
@@ -13,6 +13,7 @@ const AdminPage = ({ isAdmin }) => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [disciplineFilter, setDisciplineFilter] = useState('all');
   const navigate = useNavigate();
   
   // Проверка прав администратора
@@ -55,25 +56,44 @@ const AdminPage = ({ isAdmin }) => {
     window.location.reload(); // Перезагрузка для сброса состояния приложения
   };
   
-  // Фильтрация турниров по поисковому запросу и статусу
-  const getFilteredTournaments = () => {
-    return tournaments.filter(tournament => {
-      const matchesQuery = tournament.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === '' || tournament.status === statusFilter;
-      return matchesQuery && matchesStatus;
-    });
+  // Функция для фильтрации турниров
+  const filterTournaments = (tournament) => {
+    // Фильтр по поиску
+    if (searchQuery && searchQuery.trim() !== '') {
+      const tournamentName = (tournament.name || '').toLowerCase();
+      const query = searchQuery.toLowerCase().trim();
+      if (!tournamentName.includes(query)) {
+        return false;
+      }
+    }
+    
+    // Фильтр по статусу
+    if (statusFilter && statusFilter !== 'all' && tournament.status !== statusFilter) {
+      return false;
+    }
+    
+    // Фильтр по дисциплине
+    if (disciplineFilter && disciplineFilter !== 'all' && tournament.discipline !== disciplineFilter) {
+      return false;
+    }
+    
+    return true;
   };
   
-  // Обработчик поиска
+  // Обработка изменения поисковых параметров
   const handleSearch = (query, status) => {
+    console.log('Изменены параметры поиска на админке:', { query, status });
     setSearchQuery(query);
-    setStatusFilter(status);
+    setStatusFilter(status === 'all' ? '' : status);
   };
   
   // Если нет прав администратора, возвращаем null (редирект произойдет в useEffect)
   if (!isAdmin) {
+    console.log('Не права администратора, перенаправление на логин');
     return null;
   }
+  
+  console.log('Права администратора подтверждены, отображаем панель');
   
   return (
     <div className="admin-page">
@@ -118,7 +138,7 @@ const AdminPage = ({ isAdmin }) => {
                   <div className="error-message">{error}</div>
                 ) : (
                   <TournamentList 
-                    tournaments={getFilteredTournaments()} 
+                    tournaments={tournaments.filter(filterTournaments)} 
                     isAdmin={true} 
                     onTournamentUpdated={handleTournamentUpdated} 
                   />
@@ -130,10 +150,7 @@ const AdminPage = ({ isAdmin }) => {
           {activeTab === 'teams' && (
             <div className="tab-pane">
               <div className="teams-management">
-                <h2>Управление командами</h2>
-                <p>Здесь вы можете добавлять и редактировать команды.</p>
-                
-                <TeamList isAdmin={true} />
+                <AdminTeamManagement />
               </div>
             </div>
           )}

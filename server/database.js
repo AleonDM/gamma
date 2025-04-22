@@ -472,12 +472,12 @@ function getTournamentById(id) {
 // Создание нового турнира
 function createTournament(tournamentData) {
   return new Promise((resolve, reject) => {
-    const { name, discipline, date, status, prize_pool, organizer, description } = tournamentData;
+    const { name, discipline, date, status, organizer, description, location, archived = false } = tournamentData;
     
     db.run(
-      `INSERT INTO tournaments (name, discipline, date, status, prize_pool, organizer, description)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [name, discipline, date, status, prize_pool, organizer, description],
+      `INSERT INTO tournaments (name, discipline, date, status, organizer, description, location, archived)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, discipline, date, status, organizer, description, location, archived ? 1 : 0],
       function(err) {
         if (err) {
           reject(err);
@@ -492,13 +492,13 @@ function createTournament(tournamentData) {
 // Обновление турнира
 function updateTournament(id, tournamentData) {
   return new Promise((resolve, reject) => {
-    const { name, discipline, date, status, prize_pool, organizer, description } = tournamentData;
+    const { name, discipline, date, status, organizer, description, location } = tournamentData;
     
     db.run(
       `UPDATE tournaments 
-       SET name = ?, discipline = ?, date = ?, status = ?, prize_pool = ?, organizer = ?, description = ?
+       SET name = ?, discipline = ?, date = ?, status = ?, organizer = ?, description = ?, location = ?
        WHERE id = ?`,
-      [name, discipline, date, status, prize_pool, organizer, description, id],
+      [name, discipline, date, status, organizer, description, location, id],
       function(err) {
         if (err) {
           reject(err);
@@ -762,256 +762,542 @@ function deleteNews(id) {
 
 // Функции для работы с этапами турниров
 function getStagesByTournamentId(tournamentId) {
-  if (!tournamentId) return [];
-  
-  try {
-    const query = 'SELECT * FROM stages WHERE tournament_id = ? ORDER BY id ASC';
-    const stages = db.prepare(query).all(tournamentId);
+  return new Promise((resolve, reject) => {
+    if (!tournamentId) {
+      console.log('Получен пустой tournamentId, возвращаю пустой массив');
+      resolve([]);
+      return;
+    }
     
-    return stages.map(stage => {
-      try {
-        // Добавляем группы к этапу, если есть
-        if (stage && stage.format === 'groups') {
-          stage.groups = getGroupsByStageId(stage.id);
-        }
-      } catch (err) {
-        console.error('Ошибка при обработке этапа:', err);
-        stage.groups = [];
+    console.log(`Получение этапов для турнира ${tournamentId}`);
+    
+    const query = 'SELECT * FROM stages WHERE tournament_id = ? ORDER BY id ASC';
+    
+    db.all(query, [tournamentId], async (err, rows) => {
+      if (err) {
+        console.error('Ошибка при выполнении запроса:', err);
+        resolve([]);
+        return;
       }
       
-      return stage;
+      console.log(`Получено ${rows.length} этапов из базы данных:`, JSON.stringify(rows));
+      
+      try {
+        // Обработка этапов для добавления групп
+        const stagesWithGroups = [];
+        
+        for (const stage of rows) {
+          if (stage.format === 'groups') {
+            try {
+              // Добавляем группы к этапу
+              stage.groups = await getGroupsByStageId(stage.id);
+            } catch (groupErr) {
+              console.error(`Ошибка при получении групп для этапа ${stage.id}:`, groupErr);
+              stage.groups = [];
+            }
+          } else {
+            stage.groups = [];
+          }
+          
+          stagesWithGroups.push(stage);
+        }
+        
+        console.log(`Возвращаю ${stagesWithGroups.length} обработанных этапов`);
+        resolve(stagesWithGroups);
+      } catch (processingErr) {
+        console.error('Ошибка при обработке этапов:', processingErr);
+        resolve(rows); // В случае ошибки обработки возвращаем хотя бы исходные данные
+      }
     });
-  } catch (err) {
-    console.error('Ошибка при получении этапов турнира:', err);
-    return [];
-  }
+  });
 }
 
 function getStageById(stageId) {
-  const query = 'SELECT * FROM stages WHERE id = ?';
-  const stage = db.prepare(query).get(stageId);
-  
-  if (!stage) return null;
-  
-  // Добавляем группы к этапу, если есть
-  if (stage.format === 'groups') {
+  return new Promise(async (resolve, reject) => {
     try {
-      stage.groups = getGroupsByStageId(stage.id);
+      const query = 'SELECT * FROM stages WHERE id = ?';
+      db.get(query, [stageId], async (err, stage) => {
+        if (err) {
+          console.error('Ошибка при получении этапа по ID:', err);
+          resolve(null);
+          return;
+        }
+        
+        if (!stage) {
+          resolve(null);
+          return;
+        }
+        
+        // Добавляем группы к этапу, если есть
+        if (stage.format === 'groups') {
+          try {
+            // Используем await для получения результата асинхронной функции
+            stage.groups = await getGroupsByStageId(stage.id);
+          } catch (err) {
+            console.error('Ошибка при получении групп для этапа:', err);
+            stage.groups = [];
+          }
+        } else {
+          stage.groups = [];
+        }
+        
+        resolve(stage);
+      });
     } catch (err) {
-      console.error('Ошибка при получении групп для этапа:', err);
-      stage.groups = [];
+      console.error('Критическая ошибка при получении этапа:', err);
+      resolve(null);
     }
-  }
-  
-  return stage;
+  });
 }
 
 function createStage(stageData) {
-  const { name, format, status, tournament_id, start_date, end_date, description, groups = [] } = stageData;
-  
-  const query = `
-    INSERT INTO stages (name, format, status, tournament_id, start_date, end_date, description)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-  
-  const result = db.prepare(query).run(
-    name, format, status, tournament_id, start_date, end_date, description
-  );
-  
-  const stageId = result.lastInsertRowid;
-  
-  // Создаем группы, если это групповой этап
-  if (format === 'groups' && Array.isArray(groups) && groups.length > 0) {
-    groups.forEach(group => {
-      createGroup({ ...group, stage_id: stageId });
-    });
-  }
-  
-  return getStageById(stageId);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { name, format, status, tournament_id, start_date, end_date, description, groups = [] } = stageData;
+      
+      const query = `
+        INSERT INTO stages (name, format, status, tournament_id, start_date, end_date, description)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+      
+      db.run(query, 
+        [name, format, status, tournament_id, start_date, end_date, description],
+        function(err) {
+          if (err) {
+            console.error('Ошибка при создании этапа:', err);
+            return reject(err);
+          }
+          
+          const stageId = this.lastID;
+          
+          // Если нет групп или не групповой формат, просто возвращаем результат
+          if (format !== 'groups' || !Array.isArray(groups) || groups.length === 0) {
+            // Получаем созданный этап
+            db.get('SELECT * FROM stages WHERE id = ?', [stageId], (getErr, stage) => {
+              if (getErr) {
+                console.error('Ошибка при получении созданного этапа:', getErr);
+                return reject(getErr);
+              }
+              
+              stage.groups = [];
+              resolve(stage);
+            });
+            return;
+          }
+          
+          // Асинхронно создаем группы
+          const createGroupPromises = groups.map(group => 
+            createGroup({ ...group, stage_id: stageId })
+          );
+          
+          Promise.all(createGroupPromises)
+            .then(createdGroups => {
+              // Получаем созданный этап со всеми группами
+              db.get('SELECT * FROM stages WHERE id = ?', [stageId], (getErr, stage) => {
+                if (getErr) {
+                  console.error('Ошибка при получении созданного этапа:', getErr);
+                  return reject(getErr);
+                }
+                
+                stage.groups = createdGroups;
+                resolve(stage);
+              });
+            })
+            .catch(groupErr => {
+              console.error('Ошибка при создании групп:', groupErr);
+              
+              // Все равно возвращаем созданный этап, даже если были проблемы с группами
+              db.get('SELECT * FROM stages WHERE id = ?', [stageId], (getErr, stage) => {
+                if (getErr) {
+                  return reject(getErr);
+                }
+                
+                stage.groups = [];
+                resolve(stage);
+              });
+            });
+        }
+      );
+    } catch (err) {
+      console.error('Критическая ошибка при создании этапа:', err);
+      reject(err);
+    }
+  });
 }
 
 function updateStage(stageId, stageData) {
-  const stage = getStageById(stageId);
-  if (!stage) return null;
-  
-  const { name, format, status, start_date, end_date, description, groups = [] } = stageData;
-  
-  const query = `
-    UPDATE stages
-    SET name = ?, format = ?, status = ?, start_date = ?, end_date = ?, description = ?
-    WHERE id = ?
-  `;
-  
-  db.prepare(query).run(
-    name, format, status, start_date, end_date, description, stageId
-  );
-  
-  // Обновляем группы, если это групповой этап
-  if (format === 'groups' && Array.isArray(groups)) {
-    // Получаем текущие группы
-    const currentGroups = getGroupsByStageId(stageId);
-    const currentGroupIds = currentGroups.map(g => g.id);
-    
-    // Обрабатываем группы
-    groups.forEach(group => {
-      if (group.id) {
-        // Обновляем существующую группу
-        updateGroup(group.id, group);
-        // Удаляем из списка ID, чтобы отслеживать удаленные группы
-        const index = currentGroupIds.indexOf(group.id);
-        if (index !== -1) {
-          currentGroupIds.splice(index, 1);
-        }
-      } else {
-        // Создаем новую группу
-        createGroup({ ...group, stage_id: stageId });
+  return new Promise(async (resolve, reject) => {
+    try {
+      const stage = await getStageById(stageId);
+      if (!stage) {
+        resolve(null);
+        return;
       }
-    });
-    
-    // Удаляем группы, которых нет в обновленном списке
-    currentGroupIds.forEach(groupId => {
-      deleteGroup(groupId);
-    });
-  }
-  
-  return getStageById(stageId);
+      
+      const { name, format, status, start_date, end_date, description, groups = [] } = stageData;
+      
+      const query = `
+        UPDATE stages
+        SET name = ?, format = ?, status = ?, start_date = ?, end_date = ?, description = ?
+        WHERE id = ?
+      `;
+      
+      db.run(query, 
+        [name, format, status, start_date, end_date, description, stageId],
+        async function(err) {
+          if (err) {
+            console.error('Ошибка при обновлении этапа:', err);
+            return reject(err);
+          }
+          
+          // Обновляем группы, если это групповой этап
+          if (format === 'groups' && Array.isArray(groups)) {
+            try {
+              // Получаем текущие группы
+              const currentGroups = await getGroupsByStageId(stageId);
+              const currentGroupIds = currentGroups.map(g => g.id);
+              
+              // Обрабатываем группы
+              for (const group of groups) {
+                if (group.id) {
+                  // Обновляем существующую группу
+                  await updateGroup(group.id, group);
+                  // Удаляем из списка ID, чтобы отслеживать удаленные группы
+                  const index = currentGroupIds.indexOf(group.id);
+                  if (index !== -1) {
+                    currentGroupIds.splice(index, 1);
+                  }
+                } else {
+                  // Создаем новую группу
+                  await createGroup({ ...group, stage_id: stageId });
+                }
+              }
+              
+              // Удаляем группы, которых нет в обновленном списке
+              for (const groupId of currentGroupIds) {
+                await deleteGroup(groupId);
+              }
+            } catch (groupErr) {
+              console.error('Ошибка при обновлении групп этапа:', groupErr);
+            }
+          }
+          
+          // Получаем обновленный этап
+          const updatedStage = await getStageById(stageId);
+          resolve(updatedStage);
+        }
+      );
+    } catch (err) {
+      console.error('Критическая ошибка при обновлении этапа:', err);
+      reject(err);
+    }
+  });
 }
 
 function deleteStage(stageId) {
-  const stage = getStageById(stageId);
-  if (!stage) return false;
-  
-  // Удаляем связанные группы и матчи
-  if (stage.format === 'groups') {
-    const groups = getGroupsByStageId(stageId);
-    groups.forEach(group => {
-      deleteGroup(group.id);
-    });
-  }
-  
-  // Удаляем матчи, не привязанные к группам
-  const matches = getMatchesByStageId(stageId);
-  matches.forEach(match => {
-    if (!match.group_id) {
-      deleteMatch(match.id);
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Получаем информацию об этапе
+      console.log(`Начинаем удаление этапа с ID ${stageId}`);
+      
+      // Получаем информацию об этапе через обычный запрос
+      // (поскольку getStageById может быть также асинхронным)
+      const stageQuery = 'SELECT * FROM stages WHERE id = ?';
+      db.get(stageQuery, [stageId], async (err, stage) => {
+        if (err) {
+          console.error(`Ошибка при получении информации об этапе ${stageId}:`, err);
+          return resolve(false);
+        }
+        
+        if (!stage) {
+          console.log(`Этап с ID ${stageId} не найден`);
+          return resolve(false);
+        }
+        
+        console.log(`Этап найден: ${stage.name}, формат: ${stage.format}`);
+        
+        try {
+          // Удаляем связанные группы
+          if (stage.format === 'groups') {
+            try {
+              // Получаем группы этапа (асинхронно)
+              const groups = await getGroupsByStageId(stageId);
+              console.log(`Найдено ${groups.length} групп для удаления`);
+              
+              // Удаляем каждую группу
+              for (const group of groups) {
+                try {
+                  const groupDeleteResult = await new Promise((resolveGroup) => {
+                    // Удаляем группу напрямую через SQL
+                    const groupDeleteQuery = 'DELETE FROM groups WHERE id = ?';
+                    db.run(groupDeleteQuery, [group.id], (groupErr) => {
+                      if (groupErr) {
+                        console.error(`Ошибка при удалении группы ${group.id}:`, groupErr);
+                        resolveGroup(false);
+                      } else {
+                        console.log(`Группа ${group.id} успешно удалена`);
+                        resolveGroup(true);
+                      }
+                    });
+                  });
+                } catch (groupErr) {
+                  console.error(`Ошибка при удалении группы:`, groupErr);
+                }
+              }
+            } catch (groupsErr) {
+              console.error('Ошибка при получении групп для удаления:', groupsErr);
+            }
+          }
+          
+          // Удаляем матчи, не привязанные к группам
+          try {
+            const matchesQuery = 'SELECT id FROM matches WHERE stage_id = ? AND group_id IS NULL';
+            db.all(matchesQuery, [stageId], async (matchesErr, matches) => {
+              if (matchesErr) {
+                console.error('Ошибка при получении матчей для удаления:', matchesErr);
+              } else if (matches && matches.length > 0) {
+                console.log(`Найдено ${matches.length} матчей для удаления`);
+                
+                // Удаляем матчи
+                for (const match of matches) {
+                  try {
+                    const matchDeleteQuery = 'DELETE FROM matches WHERE id = ?';
+                    await new Promise((resolveMatch) => {
+                      db.run(matchDeleteQuery, [match.id], (matchErr) => {
+                        if (matchErr) {
+                          console.error(`Ошибка при удалении матча ${match.id}:`, matchErr);
+                        } else {
+                          console.log(`Матч ${match.id} успешно удален`);
+                        }
+                        resolveMatch();
+                      });
+                    });
+                  } catch (matchErr) {
+                    console.error(`Ошибка при удалении матча:`, matchErr);
+                  }
+                }
+              }
+              
+              // Наконец, удаляем сам этап
+              const stageDeleteQuery = 'DELETE FROM stages WHERE id = ?';
+              db.run(stageDeleteQuery, [stageId], (stageErr) => {
+                if (stageErr) {
+                  console.error(`Ошибка при удалении этапа ${stageId}:`, stageErr);
+                  resolve(false);
+                } else {
+                  console.log(`Этап ${stageId} успешно удален`);
+                  resolve(true);
+                }
+              });
+            });
+          } catch (matchesErr) {
+            console.error('Ошибка при работе с матчами:', matchesErr);
+            // Все равно пытаемся удалить этап
+            const stageDeleteQuery = 'DELETE FROM stages WHERE id = ?';
+            db.run(stageDeleteQuery, [stageId], (stageErr) => {
+              if (stageErr) {
+                console.error(`Ошибка при удалении этапа ${stageId}:`, stageErr);
+                resolve(false);
+              } else {
+                console.log(`Этап ${stageId} успешно удален, хотя была ошибка при удалении матчей`);
+                resolve(true);
+              }
+            });
+          }
+        } catch (processErr) {
+          console.error('Общая ошибка при обработке удаления:', processErr);
+          resolve(false);
+        }
+      });
+    } catch (err) {
+      console.error('Критическая ошибка при удалении этапа:', err);
+      resolve(false);
     }
   });
-  
-  const query = 'DELETE FROM stages WHERE id = ?';
-  db.prepare(query).run(stageId);
-  
-  return true;
 }
 
 // Функции для работы с группами
 function getGroupsByStageId(stageId) {
-  if (!stageId) return [];
-  
-  try {
-    const query = 'SELECT * FROM groups WHERE stage_id = ? ORDER BY id ASC';
-    const groups = db.prepare(query).all(stageId);
+  return new Promise((resolve, reject) => {
+    if (!stageId) {
+      resolve([]);
+      return;
+    }
     
-    return groups.map(group => {
-      try {
-        // Добавляем команды к группе
-        group.teams = getTeamsByGroupId(group.id);
-      } catch (err) {
-        console.error('Ошибка при получении команд для группы:', err);
-        group.teams = [];
+    const query = 'SELECT * FROM groups WHERE stage_id = ? ORDER BY id ASC';
+    
+    db.all(query, [stageId], async (err, groups) => {
+      if (err) {
+        console.error('Ошибка при получении групп для этапа:', err);
+        resolve([]);
+        return;
       }
-      return group;
+      
+      try {
+        // Обрабатываем каждую группу, добавляя команды
+        const groupsWithTeams = [];
+        
+        for (const group of groups) {
+          try {
+            // Добавляем команды к группе
+            const teams = await getTeamsByGroupId(group.id);
+            group.teams = teams;
+          } catch (teamsErr) {
+            console.error(`Ошибка при получении команд для группы ${group.id}:`, teamsErr);
+            group.teams = [];
+          }
+          
+          groupsWithTeams.push(group);
+        }
+        
+        resolve(groupsWithTeams);
+      } catch (processingErr) {
+        console.error('Ошибка при обработке групп:', processingErr);
+        resolve(groups); // В случае ошибки обработки возвращаем хотя бы исходные данные
+      }
     });
-  } catch (err) {
-    console.error('Ошибка при получении групп для этапа:', err);
-    return [];
-  }
+  });
 }
 
 function getGroupById(groupId) {
-  const query = 'SELECT * FROM groups WHERE id = ?';
-  const group = db.prepare(query).get(groupId);
-  
-  if (!group) return null;
-  
-  // Добавляем команды к группе
-  group.teams = getTeamsByGroupId(group.id);
-  
-  return group;
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM groups WHERE id = ?';
+    
+    db.get(query, [groupId], async (err, group) => {
+      if (err) {
+        console.error('Ошибка при получении группы по ID:', err);
+        resolve(null);
+        return;
+      }
+      
+      if (!group) {
+        resolve(null);
+        return;
+      }
+      
+      try {
+        // Добавляем команды к группе
+        const teams = await getTeamsByGroupId(group.id);
+        group.teams = teams;
+        resolve(group);
+      } catch (teamsErr) {
+        console.error('Ошибка при получении команд для группы:', teamsErr);
+        group.teams = [];
+        resolve(group);
+      }
+    });
+  });
 }
 
 function createGroup(groupData) {
-  const { name, stage_id, teams = [] } = groupData;
-  
-  const query = `
-    INSERT INTO groups (name, stage_id)
-    VALUES (?, ?)
-  `;
-  
-  const result = db.prepare(query).run(name, stage_id);
-  const groupId = result.lastInsertRowid;
-  
-  // Добавляем команды в группу
-  if (Array.isArray(teams) && teams.length > 0) {
-    teams.forEach(team => {
-      addTeamToGroup(groupId, team.id);
-    });
-  }
-  
-  return getGroupById(groupId);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { name, stage_id, teams = [] } = groupData;
+      
+      const query = `
+        INSERT INTO groups (name, stage_id)
+        VALUES (?, ?)
+      `;
+      
+      const result = db.prepare(query).run(name, stage_id);
+      const groupId = result.lastInsertRowid;
+      console.log(`Создана группа ${name} с ID ${groupId} для этапа ${stage_id}`);
+      
+      // Добавляем команды в группу
+      if (Array.isArray(teams) && teams.length > 0) {
+        console.log(`Добавление ${teams.length} команд в группу ${groupId}:`, JSON.stringify(teams));
+        for (const team of teams) {
+          await addTeamToGroup(groupId, team.id);
+        }
+      }
+      
+      const group = await getGroupById(groupId);
+      resolve(group);
+    } catch (err) {
+      console.error('Ошибка при создании группы:', err);
+      reject(err);
+    }
+  });
 }
 
 function updateGroup(groupId, groupData) {
-  const group = getGroupById(groupId);
-  if (!group) return null;
-  
-  const { name, teams = [] } = groupData;
-  
-  const query = `
-    UPDATE groups
-    SET name = ?
-    WHERE id = ?
-  `;
-  
-  db.prepare(query).run(name, groupId);
-  
-  // Обновляем команды в группе
-  if (Array.isArray(teams)) {
-    // Удаляем все текущие связи
-    removeAllTeamsFromGroup(groupId);
-    
-    // Добавляем новые команды
-    teams.forEach(team => {
-      addTeamToGroup(groupId, team.id);
-    });
-  }
-  
-  return getGroupById(groupId);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const group = await getGroupById(groupId);
+      if (!group) {
+        resolve(null);
+        return;
+      }
+      
+      const { name, teams = [] } = groupData;
+      
+      const query = `
+        UPDATE groups
+        SET name = ?
+        WHERE id = ?
+      `;
+      
+      db.prepare(query).run(name, groupId);
+      
+      // Обновляем команды в группе
+      if (Array.isArray(teams)) {
+        console.log(`Обновление команд для группы ${groupId}, новые команды:`, JSON.stringify(teams));
+        
+        // Удаляем все текущие связи
+        await removeAllTeamsFromGroup(groupId);
+        
+        // Добавляем новые команды
+        for (const team of teams) {
+          await addTeamToGroup(groupId, team.id);
+        }
+      }
+      
+      const updatedGroup = await getGroupById(groupId);
+      resolve(updatedGroup);
+    } catch (err) {
+      console.error('Ошибка при обновлении группы:', err);
+      reject(err);
+    }
+  });
 }
 
 function deleteGroup(groupId) {
-  const group = getGroupById(groupId);
-  if (!group) return false;
-  
-  // Удаляем связи с командами
-  removeAllTeamsFromGroup(groupId);
-  
-  // Удаляем матчи группы
-  const matches = getMatchesByGroupId(groupId);
-  matches.forEach(match => {
-    deleteMatch(match.id);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const group = await getGroupById(groupId);
+      if (!group) {
+        resolve(false);
+        return;
+      }
+      
+      // Удаляем связи с командами
+      await removeAllTeamsFromGroup(groupId);
+      
+      // Удаляем матчи группы
+      const matches = await getMatchesByGroupId(groupId);
+      for (const match of matches) {
+        await deleteMatch(match.id);
+      }
+      
+      const query = 'DELETE FROM groups WHERE id = ?';
+      db.prepare(query).run(groupId);
+      
+      resolve(true);
+    } catch (err) {
+      console.error('Ошибка при удалении группы:', err);
+      reject(err);
+    }
   });
-  
-  const query = 'DELETE FROM groups WHERE id = ?';
-  db.prepare(query).run(groupId);
-  
-  return true;
 }
 
 // Функции для работы с командами в группе
 function getTeamsByGroupId(groupId) {
-  if (!groupId) return [];
-  
-  try {
+  return new Promise((resolve, reject) => {
+    if (!groupId) {
+      resolve([]);
+      return;
+    }
+    
     const query = `
       SELECT t.id, t.name, gt.matches_played, gt.wins, gt.losses, gt.points
       FROM group_teams gt
@@ -1020,256 +1306,376 @@ function getTeamsByGroupId(groupId) {
       ORDER BY gt.points DESC, gt.wins DESC
     `;
     
-    return db.prepare(query).all(groupId);
-  } catch (err) {
-    console.error('Ошибка при получении команд для группы:', err);
-    return [];
-  }
+    db.all(query, [groupId], (err, teams) => {
+      if (err) {
+        console.error('Ошибка при получении команд для группы:', err);
+        resolve([]);
+        return;
+      }
+      
+      resolve(teams);
+    });
+  });
 }
 
 function addTeamToGroup(groupId, teamId) {
-  // Проверяем, не добавлена ли уже команда в группу
-  const checkQuery = 'SELECT 1 FROM group_teams WHERE group_id = ? AND team_id = ?';
-  const exists = db.prepare(checkQuery).get(groupId, teamId);
-  
-  if (exists) return false;
-  
-  const query = `
-    INSERT INTO group_teams (group_id, team_id, matches_played, wins, losses, points)
-    VALUES (?, ?, 0, 0, 0, 0)
-  `;
-  
-  db.prepare(query).run(groupId, teamId);
-  return true;
+  return new Promise((resolve, reject) => {
+    try {
+      // Проверяем, не добавлена ли уже команда в группу
+      const checkQuery = 'SELECT 1 FROM group_teams WHERE group_id = ? AND team_id = ?';
+      const exists = db.prepare(checkQuery).get(groupId, teamId);
+      
+      if (exists) {
+        console.log(`Команда с ID ${teamId} уже добавлена в группу ${groupId}`);
+        resolve(false);
+        return;
+      }
+      
+      const query = `
+        INSERT INTO group_teams (group_id, team_id, matches_played, wins, losses, points)
+        VALUES (?, ?, 0, 0, 0, 0)
+      `;
+      
+      db.prepare(query).run(groupId, teamId);
+      console.log(`Команда с ID ${teamId} успешно добавлена в группу ${groupId}`);
+      resolve(true);
+    } catch (err) {
+      console.error(`Ошибка при добавлении команды ${teamId} в группу ${groupId}:`, err);
+      reject(err);
+    }
+  });
 }
 
 function removeTeamFromGroup(groupId, teamId) {
-  const query = 'DELETE FROM group_teams WHERE group_id = ? AND team_id = ?';
-  db.prepare(query).run(groupId, teamId);
-  return true;
+  return new Promise((resolve, reject) => {
+    try {
+      const query = 'DELETE FROM group_teams WHERE group_id = ? AND team_id = ?';
+      db.prepare(query).run(groupId, teamId);
+      console.log(`Команда с ID ${teamId} успешно удалена из группы ${groupId}`);
+      resolve(true);
+    } catch (err) {
+      console.error(`Ошибка при удалении команды ${teamId} из группы ${groupId}:`, err);
+      reject(err);
+    }
+  });
 }
 
 function removeAllTeamsFromGroup(groupId) {
-  const query = 'DELETE FROM group_teams WHERE group_id = ?';
-  db.prepare(query).run(groupId);
-  return true;
+  return new Promise((resolve, reject) => {
+    try {
+      const query = 'DELETE FROM group_teams WHERE group_id = ?';
+      db.prepare(query).run(groupId);
+      console.log(`Все команды успешно удалены из группы ${groupId}`);
+      resolve(true);
+    } catch (err) {
+      console.error(`Ошибка при удалении всех команд из группы ${groupId}:`, err);
+      reject(err);
+    }
+  });
 }
 
 function updateTeamStats(groupId, teamId, matches_played, wins, losses, points) {
-  const query = `
-    UPDATE group_teams
-    SET matches_played = ?, wins = ?, losses = ?, points = ?
-    WHERE group_id = ? AND team_id = ?
-  `;
-  
-  db.prepare(query).run(matches_played, wins, losses, points, groupId, teamId);
-  return true;
+  return new Promise((resolve, reject) => {
+    try {
+      const query = `
+        UPDATE group_teams
+        SET matches_played = ?, wins = ?, losses = ?, points = ?
+        WHERE group_id = ? AND team_id = ?
+      `;
+      
+      db.prepare(query).run(matches_played, wins, losses, points, groupId, teamId);
+      console.log(`Обновлена статистика команды ${teamId} в группе ${groupId}`);
+      resolve(true);
+    } catch (err) {
+      console.error(`Ошибка при обновлении статистики команды ${teamId} в группе ${groupId}:`, err);
+      reject(err);
+    }
+  });
 }
 
 // Функции для работы с матчами
 function getMatchesByStageId(stageId) {
-  const query = `
-    SELECT m.*, t1.name as team1_name, t2.name as team2_name
-    FROM matches m
-    JOIN teams t1 ON m.team1_id = t1.id
-    JOIN teams t2 ON m.team2_id = t2.id
-    WHERE m.stage_id = ? AND m.group_id IS NULL
-    ORDER BY m.date
-  `;
-  
-  return db.prepare(query).all(stageId);
+  return new Promise((resolve, reject) => {
+    try {
+      const query = `
+        SELECT m.*, t1.name as team1_name, t2.name as team2_name
+        FROM matches m
+        JOIN teams t1 ON m.team1_id = t1.id
+        JOIN teams t2 ON m.team2_id = t2.id
+        WHERE m.stage_id = ? AND m.group_id IS NULL
+        ORDER BY m.date
+      `;
+      
+      db.all(query, [stageId], (err, matches) => {
+        if (err) {
+          console.error('Ошибка при получении матчей этапа:', err);
+          resolve([]);
+          return;
+        }
+        
+        resolve(matches);
+      });
+    } catch (err) {
+      console.error('Критическая ошибка при получении матчей этапа:', err);
+      resolve([]);
+    }
+  });
 }
 
 function getMatchesByGroupId(groupId) {
-  const query = `
-    SELECT m.*, t1.name as team1_name, t2.name as team2_name
-    FROM matches m
-    JOIN teams t1 ON m.team1_id = t1.id
-    JOIN teams t2 ON m.team2_id = t2.id
-    WHERE m.group_id = ?
-    ORDER BY m.date
-  `;
-  
-  return db.prepare(query).all(groupId);
+  return new Promise((resolve, reject) => {
+    try {
+      const query = `
+        SELECT m.*, t1.name as team1_name, t2.name as team2_name
+        FROM matches m
+        JOIN teams t1 ON m.team1_id = t1.id
+        JOIN teams t2 ON m.team2_id = t2.id
+        WHERE m.group_id = ?
+        ORDER BY m.date
+      `;
+      
+      db.all(query, [groupId], (err, matches) => {
+        if (err) {
+          console.error('Ошибка при получении матчей группы:', err);
+          resolve([]);
+          return;
+        }
+        
+        resolve(matches);
+      });
+    } catch (err) {
+      console.error('Критическая ошибка при получении матчей группы:', err);
+      resolve([]);
+    }
+  });
 }
 
 function getMatchById(matchId) {
-  const query = `
-    SELECT m.*, t1.name as team1_name, t2.name as team2_name
-    FROM matches m
-    JOIN teams t1 ON m.team1_id = t1.id
-    JOIN teams t2 ON m.team2_id = t2.id
-    WHERE m.id = ?
-  `;
-  
-  return db.prepare(query).get(matchId);
+  return new Promise((resolve, reject) => {
+    try {
+      const query = `
+        SELECT m.*, t1.name as team1_name, t2.name as team2_name
+        FROM matches m
+        JOIN teams t1 ON m.team1_id = t1.id
+        JOIN teams t2 ON m.team2_id = t2.id
+        WHERE m.id = ?
+      `;
+      
+      db.get(query, [matchId], (err, match) => {
+        if (err) {
+          console.error('Ошибка при получении матча:', err);
+          resolve(null);
+          return;
+        }
+        
+        resolve(match);
+      });
+    } catch (err) {
+      console.error('Критическая ошибка при получении матча:', err);
+      resolve(null);
+    }
+  });
 }
 
 function createMatch(matchData) {
-  const {
-    team1_id, team2_id, team1_score, team2_score,
-    date, status, location, description, stage_id, group_id
-  } = matchData;
-  
-  const query = `
-    INSERT INTO matches 
-    (team1_id, team2_id, team1_score, team2_score, date, status, location, description, stage_id, group_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  
-  const result = db.prepare(query).run(
-    team1_id, team2_id, team1_score, team2_score,
-    date, status, location, description, stage_id, group_id
-  );
-  
-  const matchId = result.lastInsertRowid;
-  
-  // Если матч завершен, обновляем статистику команд в группе
-  if (status === 'Завершён' && group_id) {
-    updateTeamStatsAfterMatch(group_id, team1_id, team2_id, team1_score, team2_score);
-  }
-  
-  return getMatchById(matchId);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const {
+        team1_id, team2_id, team1_score, team2_score,
+        date, status, location, description, stage_id, group_id
+      } = matchData;
+      
+      const query = `
+        INSERT INTO matches 
+        (team1_id, team2_id, team1_score, team2_score, date, status, location, description, stage_id, group_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      
+      const result = db.prepare(query).run(
+        team1_id, team2_id, team1_score, team2_score,
+        date, status, location, description, stage_id, group_id
+      );
+      
+      const matchId = result.lastInsertRowid;
+      
+      // Если матч завершен, обновляем статистику команд в группе
+      if (status === 'Завершён' && group_id) {
+        await updateTeamStatsAfterMatch(group_id, team1_id, team2_id, team1_score, team2_score);
+      }
+      
+      const match = getMatchById(matchId);
+      resolve(match);
+    } catch (err) {
+      console.error('Ошибка при создании матча:', err);
+      reject(err);
+    }
+  });
 }
 
 function updateMatch(matchId, matchData) {
-  const match = getMatchById(matchId);
-  if (!match) return null;
-  
-  const {
-    team1_id, team2_id, team1_score, team2_score,
-    date, status, location, description
-  } = matchData;
-  
-  // Если изменился результат завершенного матча, обновляем статистику команд
-  if (match.group_id && 
-      (match.status !== 'Завершён' && status === 'Завершён' || 
-       match.status === 'Завершён' && 
-       (match.team1_score !== team1_score || match.team2_score !== team2_score))) {
-    
-    // Сначала отменяем предыдущий результат
-    if (match.status === 'Завершён') {
-      updateTeamStatsAfterMatch(
-        match.group_id, 
-        match.team1_id, 
-        match.team2_id, 
-        match.team1_score, 
-        match.team2_score, 
-        true // Отмена предыдущего результата
-      );
-    }
-    
-    // Затем добавляем новый результат
-    if (status === 'Завершён') {
-      updateTeamStatsAfterMatch(
-        match.group_id,
+  return new Promise(async (resolve, reject) => {
+    try {
+      const match = getMatchById(matchId);
+      if (!match) {
+        resolve(null);
+        return;
+      }
+      
+      const {
+        team1_id, team2_id, team1_score, team2_score,
+        date, status, location, description
+      } = matchData;
+      
+      // Если изменился результат завершенного матча, обновляем статистику команд
+      if (match.group_id && 
+          (match.status !== 'Завершён' && status === 'Завершён' || 
+          match.status === 'Завершён' && 
+          (match.team1_score !== team1_score || match.team2_score !== team2_score))) {
+        
+        // Сначала отменяем предыдущий результат
+        if (match.status === 'Завершён') {
+          await updateTeamStatsAfterMatch(
+            match.group_id, 
+            match.team1_id, 
+            match.team2_id, 
+            match.team1_score, 
+            match.team2_score, 
+            true // Отмена предыдущего результата
+          );
+        }
+        
+        // Затем добавляем новый результат
+        if (status === 'Завершён') {
+          await updateTeamStatsAfterMatch(
+            match.group_id,
+            team1_id || match.team1_id,
+            team2_id || match.team2_id,
+            team1_score,
+            team2_score
+          );
+        }
+      }
+      
+      const query = `
+        UPDATE matches
+        SET team1_id = ?, team2_id = ?, team1_score = ?, team2_score = ?,
+            date = ?, status = ?, location = ?, description = ?
+        WHERE id = ?
+      `;
+      
+      db.prepare(query).run(
         team1_id || match.team1_id,
         team2_id || match.team2_id,
         team1_score,
-        team2_score
+        team2_score,
+        date || match.date,
+        status || match.status,
+        location !== undefined ? location : match.location,
+        description !== undefined ? description : match.description,
+        matchId
       );
+      
+      const updatedMatch = getMatchById(matchId);
+      resolve(updatedMatch);
+    } catch (err) {
+      console.error('Ошибка при обновлении матча:', err);
+      reject(err);
     }
-  }
-  
-  const query = `
-    UPDATE matches
-    SET team1_id = ?, team2_id = ?, team1_score = ?, team2_score = ?,
-        date = ?, status = ?, location = ?, description = ?
-    WHERE id = ?
-  `;
-  
-  db.prepare(query).run(
-    team1_id || match.team1_id,
-    team2_id || match.team2_id,
-    team1_score,
-    team2_score,
-    date || match.date,
-    status || match.status,
-    location !== undefined ? location : match.location,
-    description !== undefined ? description : match.description,
-    matchId
-  );
-  
-  return getMatchById(matchId);
+  });
 }
 
 function deleteMatch(matchId) {
-  const match = getMatchById(matchId);
-  if (!match) return false;
-  
-  // Если матч был завершен и в группе, отменяем его результат
-  if (match.status === 'Завершён' && match.group_id) {
-    updateTeamStatsAfterMatch(
-      match.group_id,
-      match.team1_id,
-      match.team2_id,
-      match.team1_score,
-      match.team2_score,
-      true // Отмена
-    );
-  }
-  
-  const query = 'DELETE FROM matches WHERE id = ?';
-  db.prepare(query).run(matchId);
-  
-  return true;
+  return new Promise((resolve, reject) => {
+    try {
+      const match = getMatchById(matchId);
+      if (!match) {
+        resolve(false);
+        return;
+      }
+      
+      // Если матч был завершен и в группе, отменяем его результат
+      if (match.status === 'Завершён' && match.group_id) {
+        updateTeamStatsAfterMatch(
+          match.group_id,
+          match.team1_id,
+          match.team2_id,
+          match.team1_score,
+          match.team2_score,
+          true // Отмена
+        );
+      }
+      
+      const query = 'DELETE FROM matches WHERE id = ?';
+      db.prepare(query).run(matchId);
+      
+      resolve(true);
+    } catch (err) {
+      console.error('Ошибка при удалении матча:', err);
+      reject(err);
+    }
+  });
 }
 
 // Вспомогательная функция для обновления статистики команд после матча
-function updateTeamStatsAfterMatch(groupId, team1Id, team2Id, team1Score, team2Score, isReversal = false) {
-  // Получаем текущую статистику команд
-  const getStatsQuery = 'SELECT * FROM group_teams WHERE group_id = ? AND team_id = ?';
-  const team1Stats = db.prepare(getStatsQuery).get(groupId, team1Id) || 
-                     { matches_played: 0, wins: 0, losses: 0, points: 0 };
-  const team2Stats = db.prepare(getStatsQuery).get(groupId, team2Id) || 
-                     { matches_played: 0, wins: 0, losses: 0, points: 0 };
-  
-  // Определяем, кто победил
-  let team1Won = false;
-  let team2Won = false;
-  
-  if (team1Score !== null && team2Score !== null) {
-    team1Won = team1Score > team2Score;
-    team2Won = team2Score > team1Score;
+async function updateTeamStatsAfterMatch(groupId, team1Id, team2Id, team1Score, team2Score, isReversal = false) {
+  try {
+    // Получаем текущую статистику команд
+    const getStatsQuery = 'SELECT * FROM group_teams WHERE group_id = ? AND team_id = ?';
+    const team1Stats = db.prepare(getStatsQuery).get(groupId, team1Id) || 
+                       { matches_played: 0, wins: 0, losses: 0, points: 0 };
+    const team2Stats = db.prepare(getStatsQuery).get(groupId, team2Id) || 
+                       { matches_played: 0, wins: 0, losses: 0, points: 0 };
+    
+    // Определяем, кто победил
+    let team1Won = false;
+    let team2Won = false;
+    
+    if (team1Score !== null && team2Score !== null) {
+      team1Won = team1Score > team2Score;
+      team2Won = team2Score > team1Score;
+    }
+    
+    // Множитель для операции (добавление или вычитание)
+    const multiplier = isReversal ? -1 : 1;
+    
+    // Обновляем статистику команды 1
+    let team1UpdatedStats = {
+      matches_played: team1Stats.matches_played + (1 * multiplier),
+      wins: team1Stats.wins + (team1Won ? 1 : 0) * multiplier,
+      losses: team1Stats.losses + (team2Won ? 1 : 0) * multiplier,
+      points: team1Stats.points + (team1Won ? 3 : team1Score === team2Score ? 1 : 0) * multiplier
+    };
+    
+    // Обновляем статистику команды 2
+    let team2UpdatedStats = {
+      matches_played: team2Stats.matches_played + (1 * multiplier),
+      wins: team2Stats.wins + (team2Won ? 1 : 0) * multiplier,
+      losses: team2Stats.losses + (team1Won ? 1 : 0) * multiplier,
+      points: team2Stats.points + (team2Won ? 3 : team1Score === team2Score ? 1 : 0) * multiplier
+    };
+    
+    // Обновляем в базе данных
+    await updateTeamStats(
+      groupId, team1Id,
+      team1UpdatedStats.matches_played,
+      team1UpdatedStats.wins,
+      team1UpdatedStats.losses,
+      team1UpdatedStats.points
+    );
+    
+    await updateTeamStats(
+      groupId, team2Id,
+      team2UpdatedStats.matches_played,
+      team2UpdatedStats.wins,
+      team2UpdatedStats.losses,
+      team2UpdatedStats.points
+    );
+    
+    return true;
+  } catch (err) {
+    console.error('Ошибка при обновлении статистики команд после матча:', err);
+    throw err;
   }
-  
-  // Множитель для операции (добавление или вычитание)
-  const multiplier = isReversal ? -1 : 1;
-  
-  // Обновляем статистику команды 1
-  let team1UpdatedStats = {
-    matches_played: team1Stats.matches_played + (1 * multiplier),
-    wins: team1Stats.wins + (team1Won ? 1 : 0) * multiplier,
-    losses: team1Stats.losses + (team2Won ? 1 : 0) * multiplier,
-    points: team1Stats.points + (team1Won ? 3 : team1Score === team2Score ? 1 : 0) * multiplier
-  };
-  
-  // Обновляем статистику команды 2
-  let team2UpdatedStats = {
-    matches_played: team2Stats.matches_played + (1 * multiplier),
-    wins: team2Stats.wins + (team2Won ? 1 : 0) * multiplier,
-    losses: team2Stats.losses + (team1Won ? 1 : 0) * multiplier,
-    points: team2Stats.points + (team2Won ? 3 : team1Score === team2Score ? 1 : 0) * multiplier
-  };
-  
-  // Обновляем в базе данных
-  updateTeamStats(
-    groupId, team1Id,
-    team1UpdatedStats.matches_played,
-    team1UpdatedStats.wins,
-    team1UpdatedStats.losses,
-    team1UpdatedStats.points
-  );
-  
-  updateTeamStats(
-    groupId, team2Id,
-    team2UpdatedStats.matches_played,
-    team2UpdatedStats.wins,
-    team2UpdatedStats.losses,
-    team2UpdatedStats.points
-  );
-  
-  return true;
 }
 
 // Экспортируем функции для работы с базой данных

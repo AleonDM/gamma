@@ -14,7 +14,6 @@ const mockTournaments = [
     discipline: "dota2",
     date: new Date().toISOString(),
     status: "upcoming",
-    prize_pool: "100000 ₽",
     format: "5v5",
     location: "Онлайн",
     teams_registered: 12,
@@ -27,7 +26,6 @@ const mockTournaments = [
     discipline: "cs2", 
     date: new Date(Date.now() + 7*24*60*60*1000).toISOString(), // +7 дней
     status: "registration",
-    prize_pool: "50000 ₽",
     format: "5v5",
     location: "Москва",
     teams_registered: 8,
@@ -40,7 +38,6 @@ const mockTournaments = [
     discipline: "brawlstars",
     date: new Date(Date.now() - 3*24*60*60*1000).toISOString(), // -3 дня
     status: "ongoing",
-    prize_pool: "25000 ₽",
     format: "3v3",
     location: "Онлайн",
     teams_registered: 24,
@@ -53,7 +50,6 @@ const mockTournaments = [
     discipline: "valorant",
     date: new Date(Date.now() - 30*24*60*60*1000).toISOString(), // -30 дней
     status: "completed",
-    prize_pool: "75000 ₽",
     format: "5v5",
     location: "Санкт-Петербург",
     teams_registered: 16,
@@ -109,6 +105,8 @@ const HomePage = ({ isAdmin }) => {
   };
   
   const getFilteredTournaments = () => {
+    console.log('Фильтрация турниров с параметрами:', { searchQuery, statusFilter, disciplineParam });
+    
     return tournaments.filter(tournament => {
       // Фильтр по дисциплине
       if (disciplineParam && tournament.discipline !== disciplineParam) {
@@ -116,12 +114,16 @@ const HomePage = ({ isAdmin }) => {
       }
       
       // Фильтр по поиску
-      if (searchQuery && !(tournament.name || '').toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false;
+      if (searchQuery && searchQuery.trim() !== '') {
+        const tournamentName = (tournament.name || '').toLowerCase();
+        const query = searchQuery.toLowerCase().trim();
+        if (!tournamentName.includes(query)) {
+          return false;
+        }
       }
       
       // Фильтр по статусу
-      if (statusFilter && tournament.status !== statusFilter) {
+      if (statusFilter && statusFilter !== 'all' && tournament.status !== statusFilter) {
         return false;
       }
       
@@ -135,8 +137,9 @@ const HomePage = ({ isAdmin }) => {
   };
   
   const handleSearch = (query, status) => {
+    console.log('Получены параметры поиска:', { query, status });
     setSearchQuery(query);
-    setStatusFilter(status);
+    setStatusFilter(status === 'all' ? '' : status);
   };
   
   const handleTournamentUpdated = () => {

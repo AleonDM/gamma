@@ -9,8 +9,8 @@ const ArchivePage = ({ isAdmin }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [disciplineFilter, setDisciplineFilter] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedDiscipline, setSelectedDiscipline] = useState('all');
 
   useEffect(() => {
     loadArchivedTournaments();
@@ -30,29 +30,27 @@ const ArchivePage = ({ isAdmin }) => {
     }
   };
 
-  const getFilteredTournaments = () => {
-    return tournaments.filter(tournament => {
-      // Фильтр по поиску (название турнира)
-      const tournamentName = tournament.name || '';
-      const matchesSearch = tournamentName.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // Фильтр по статусу
-      const matchesStatus = !statusFilter || tournament.status === statusFilter;
-      
-      // Фильтр по дисциплине
-      const matchesDiscipline = !disciplineFilter || tournament.discipline === disciplineFilter;
-      
-      return matchesSearch && matchesStatus && matchesDiscipline;
-    });
+  const filterTournaments = (tournament) => {
+    const tournamentName = (tournament.name || '').toLowerCase();
+    const searchLower = searchQuery.toLowerCase().trim();
+    
+    const matchesSearch = searchLower === '' || tournamentName.includes(searchLower);
+    
+    const matchesStatus = selectedStatus === 'all' || tournament.status === selectedStatus;
+    
+    const matchesDiscipline = selectedDiscipline === 'all' || tournament.discipline === selectedDiscipline;
+    
+    return matchesSearch && matchesStatus && matchesDiscipline;
   };
 
   const handleSearchChange = (query, status) => {
+    console.log('Изменены параметры поиска архива:', { query, status });
     setSearchQuery(query);
-    setStatusFilter(status);
+    setSelectedStatus(status);
   };
 
   const handleDisciplineChange = (discipline) => {
-    setDisciplineFilter(discipline);
+    setSelectedDiscipline(discipline);
   };
 
   const handleTournamentUpdated = () => {
@@ -70,16 +68,16 @@ const ArchivePage = ({ isAdmin }) => {
         <TournamentSearch 
           onSearch={handleSearchChange}
           initialQuery={searchQuery}
-          initialStatus={statusFilter}
+          initialStatus={selectedStatus}
         />
 
         <div className="discipline-filter">
           <label>Дисциплина:</label>
           <select 
-            value={disciplineFilter} 
+            value={selectedDiscipline} 
             onChange={(e) => handleDisciplineChange(e.target.value)}
           >
-            <option value="">Все дисциплины</option>
+            <option value="all">Все дисциплины</option>
             <option value="Dota 2">Dota 2</option>
             <option value="CS2">CS2</option>
             <option value="Brawl Stars">Brawl Stars</option>
@@ -94,7 +92,7 @@ const ArchivePage = ({ isAdmin }) => {
         <div className="error-message">{error}</div>
       ) : (
         <TournamentList 
-          tournaments={getFilteredTournaments()} 
+          tournaments={tournaments.filter(filterTournaments)} 
           isAdmin={isAdmin} 
           onTournamentUpdated={handleTournamentUpdated}
         />

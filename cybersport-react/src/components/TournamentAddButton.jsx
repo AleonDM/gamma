@@ -12,7 +12,6 @@ const TournamentAddButton = ({ onTournamentAdded, isMobile = false }) => {
     discipline: 'Dota 2',
     date: new Date().toISOString().split('T')[0],
     status: 'Запланирован',
-    prize_pool: 0,
     organizer: '',
     description: '',
     location: ''

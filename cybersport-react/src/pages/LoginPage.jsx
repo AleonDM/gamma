@@ -29,14 +29,19 @@ const LoginPage = ({ setIsAdmin }) => {
 
     try {
       setLoading(true);
+      console.log('Попытка входа с кодом:', teamCode);
       
       // Специальная обработка для админа
       if (teamCode.toLowerCase() === 'admin') {
+        console.log('Вход администратора успешен');
         localStorage.setItem('teamCode', 'admin');
         localStorage.setItem('teamName', 'Администратор');
         localStorage.setItem('isAdmin', 'true');
         setIsAdmin(true);
-        navigate('/');
+        
+        setTimeout(() => {
+          navigate('/admin');
+        }, 100);
         return;
       }
       

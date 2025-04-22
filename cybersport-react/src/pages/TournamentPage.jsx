@@ -131,13 +131,6 @@ const TournamentPage = ({ isAdmin }) => {
       
       <div className="tournament-details-section">
         <div className="tournament-info-block">
-          {tournament.prize_pool > 0 && (
-            <div className="tournament-info-item">
-              <h3>Призовой фонд</h3>
-              <p className="prize-pool">{tournament.prize_pool.toLocaleString('ru-RU')} ₽</p>
-            </div>
-          )}
-          
           {tournament.organizer && (
             <div className="tournament-info-item">
               <h3>Организатор</h3>

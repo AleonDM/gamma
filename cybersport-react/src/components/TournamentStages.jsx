@@ -18,36 +18,54 @@ const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated }
   const loadStages = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/tournaments/${tournamentId}/stages`);
+      console.log('Загрузка этапов для турнира:', tournamentId);
       
-      // Проверяем, является ли response.data массивом
-      const stagesData = Array.isArray(response.data) ? response.data : [];
-      
-      // Проверяем, содержит ли каждый этап все необходимые поля
-      const validStages = stagesData.filter(stage => 
-        stage && 
-        typeof stage === 'object' && 
-        stage.id && 
-        stage.name && 
-        stage.format
-      );
-      
-      setStages(validStages);
-      
-      // По умолчанию раскрываем все текущие стадии
-      const currentStages = {};
-      validStages.forEach(stage => {
-        if (stage.status === 'Идёт') {
-          currentStages[stage.id] = true;
+      // Добавляем таймаут, чтобы убедиться, что сервер готов
+      setTimeout(async () => {
+        try {
+          const response = await axios.get(`/api/tournaments/${tournamentId}/stages`);
+          
+          // Отладочное логирование данных
+          console.log('Получены данные от сервера:', response.data);
+          console.log('Тип данных от сервера:', typeof response.data);
+          console.log('Это массив?', Array.isArray(response.data));
+          
+          // Проверяем, является ли response.data массивом
+          const stagesData = Array.isArray(response.data) ? response.data : [];
+          console.log('Проверка на массив:', stagesData);
+          
+          // Проверяем, содержит ли каждый этап все необходимые поля
+          const validStages = stagesData.filter(stage => 
+            stage && 
+            typeof stage === 'object' && 
+            stage.id && 
+            stage.name && 
+            stage.format
+          );
+          
+          console.log('Валидные этапы:', validStages);
+          setStages(validStages);
+          
+          // По умолчанию раскрываем все текущие стадии
+          const currentStages = {};
+          validStages.forEach(stage => {
+            if (stage.status === 'Идёт') {
+              currentStages[stage.id] = true;
+            }
+          });
+          
+          setExpandedStages(currentStages);
+          setError(null);
+          setLoading(false);
+        } catch (err) {
+          console.error('Ошибка при загрузке этапов турнира:', err);
+          setError('Не удалось загрузить этапы турнира');
+          setLoading(false);
         }
-      });
-      
-      setExpandedStages(currentStages);
-      setError(null);
+      }, 500); // Задержка в 500 мс
     } catch (err) {
-      console.error('Ошибка при загрузке этапов турнира:', err);
+      console.error('Внешняя ошибка при загрузке этапов турнира:', err);
       setError('Не удалось загрузить этапы турнира');
-    } finally {
       setLoading(false);
     }
   };
@@ -73,12 +91,23 @@ const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated }
   const handleDelete = async (stageId) => {
     if (window.confirm('Вы уверены, что хотите удалить этот этап? Все данные будут потеряны.')) {
       try {
-        await axios.delete(`/api/tournaments/${tournamentId}/stages/${stageId}`);
-        loadStages();
-        onStageUpdated && onStageUpdated();
+        console.log(`Отправка запроса на удаление этапа ${stageId} для турнира ${tournamentId}`);
+        const response = await axios.delete(`/api/tournaments/${tournamentId}/stages/${stageId}`);
+        
+        console.log('Ответ сервера на удаление этапа:', response.data);
+        
+        if (response.data && response.data.success) {
+          console.log(`Этап ${stageId} успешно удален, обновляем список этапов`);
+          loadStages();
+          onStageUpdated && onStageUpdated();
+        } else {
+          console.error('Сервер вернул неожиданный ответ при удалении этапа:', response.data);
+          alert('Не удалось удалить этап. Пожалуйста, обновите страницу и попробуйте снова.');
+        }
       } catch (err) {
         console.error('Ошибка при удалении этапа:', err);
-        alert('Не удалось удалить этап. Пожалуйста, попробуйте позже.');
+        const errorMessage = err.response?.data?.error || 'Не удалось удалить этап. Пожалуйста, попробуйте позже.';
+        alert(errorMessage);
       }
     }
   };

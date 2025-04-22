@@ -90,6 +90,17 @@ const Sidebar = ({ isAdmin, className }) => {
           >
             Архив турниров
           </Link>
+
+          {isAdmin && (
+            <Link 
+              to="/admin" 
+              id="links" 
+              className={location.pathname === '/admin' ? 'active' : ''} 
+              data-view="admin"
+            >
+              Панель администратора
+            </Link>
+          )}
           
           <Link to="/login" id="links">
             вход

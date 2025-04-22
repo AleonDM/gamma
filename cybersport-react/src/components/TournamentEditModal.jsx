@@ -22,7 +22,6 @@ const TournamentEditModal = ({ tournament, onClose, onTournamentUpdated, isNew =
     discipline: tournament.discipline || 'Dota 2',
     date: formatDateForInput(tournament.date) || new Date().toISOString().split('T')[0],
     status: tournament.status || 'Запланирован',
-    prize_pool: tournament.prize_pool || 0,
     location: tournament.location || '',
     organizer: tournament.organizer || '',
     description: tournament.description || ''
@@ -53,11 +52,6 @@ const TournamentEditModal = ({ tournament, onClose, onTournamentUpdated, isNew =
   const handleChange = (e) => {
     const { name, value } = e.target;
     let finalValue = value;
-    
-    // Преобразуем числовые значения
-    if (name === 'prize_pool') {
-      finalValue = value === '' ? 0 : parseInt(value, 10);
-    }
     
     setFormData(prev => ({
       ...prev,
@@ -173,19 +167,6 @@ const TournamentEditModal = ({ tournament, onClose, onTournamentUpdated, isNew =
                 <option value="Окончен">Окончен</option>
                 <option value="Отменён">Отменён</option>
               </select>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="prize_pool">Призовой фонд</label>
-              <input
-                type="number"
-                id="prize_pool"
-                name="prize_pool"
-                value={formData.prize_pool}
-                onChange={handleChange}
-                min="0"
-                placeholder="Введите сумму в рублях"
-              />
             </div>
           </div>
           
