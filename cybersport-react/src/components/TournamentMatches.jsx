@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import MatchCreateModal from './MatchCreateModal';
 import { FiEdit2, FiClock, FiCheck, FiMoreHorizontal } from 'react-icons/fi';
 import './TournamentMatches.css';
 
@@ -8,10 +7,9 @@ const TournamentMatches = ({ stageId, groupId, isAdmin, onMatchesUpdated }) => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showMatchModal, setShowMatchModal] = useState(false);
-  const [selectedMatch, setSelectedMatch] = useState(null);
 
   useEffect(() => {
+    console.log("TournamentMatches монтирован с параметрами stageId:", stageId, "groupId:", groupId);
     loadMatches();
   }, [stageId, groupId]);
 
@@ -35,24 +33,17 @@ const TournamentMatches = ({ stageId, groupId, isAdmin, onMatchesUpdated }) => {
   };
 
   const handleAddMatch = () => {
-    setSelectedMatch(null);
-    setShowMatchModal(true);
+    // Показать модальное окно для добавления матча
+    if (onMatchesUpdated) {
+      onMatchesUpdated({ type: 'add', stageId, groupId });
+    }
   };
 
   const handleEditMatch = (match) => {
-    setSelectedMatch(match);
-    setShowMatchModal(true);
-  };
-
-  const handleCloseMatchModal = () => {
-    setShowMatchModal(false);
-  };
-
-  const handleSaveMatch = () => {
-    setShowMatchModal(false);
-    loadMatches();
-    // Вызываем обновление родительского компонента
-    if (onMatchesUpdated) onMatchesUpdated();
+    // Показать модальное окно для редактирования матча
+    if (onMatchesUpdated) {
+      onMatchesUpdated({ type: 'edit', match, stageId, groupId });
+    }
   };
 
   const formatDate = (dateString) => {
@@ -161,8 +152,13 @@ const TournamentMatches = ({ stageId, groupId, isAdmin, onMatchesUpdated }) => {
               <div className="match-actions">
                 <button 
                   className="match-edit-button" 
-                  onClick={() => handleEditMatch(match)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleEditMatch(match);
+                  }}
                   title="Редактировать матч"
+                  type="button"
                 >
                   <FiEdit2 size={16} />
                 </button>
@@ -171,16 +167,6 @@ const TournamentMatches = ({ stageId, groupId, isAdmin, onMatchesUpdated }) => {
           </div>
         ))}
       </div>
-      
-      {showMatchModal && (
-        <MatchCreateModal 
-          stageId={stageId}
-          groupId={groupId}
-          match={selectedMatch}
-          onClose={handleCloseMatchModal}
-          onSave={handleSaveMatch}
-        />
-      )}
     </div>
   );
 };

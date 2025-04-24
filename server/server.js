@@ -515,33 +515,49 @@ app.post('/api/tournaments/stages/:stageId/matches', async (req, res) => {
   try {
     const { stageId } = req.params;
     const matchData = req.body;
+    console.log(`Создание матча для этапа ${stageId} без группы`);
+    console.log('Данные матча:', matchData);
+    
     const newMatch = await db.createMatch({
       ...matchData,
       stage_id: stageId,
       group_id: null
     });
     
+    console.log('Созданный матч:', newMatch);
     res.status(201).json(newMatch);
   } catch (err) {
     console.error('Ошибка при создании матча:', err);
-    res.status(500).json({ error: 'Не удалось создать матч' });
+    res.status(500).json({ error: 'Не удалось создать матч', details: err.message });
   }
 });
 
 app.post('/api/tournaments/stages/:stageId/groups/:groupId/matches', async (req, res) => {
   try {
     const { stageId, groupId } = req.params;
+    
+    // Убедимся, что groupId - это число
+    const numericGroupId = parseInt(groupId, 10);
+    if (isNaN(numericGroupId)) {
+      console.error(`Неправильный формат groupId: ${groupId}`);
+      return res.status(400).json({ error: 'Неправильный формат ID группы' });
+    }
+    
     const matchData = req.body;
+    console.log(`Создание матча для группы ${numericGroupId} этапа ${stageId}`);
+    console.log('Данные матча:', matchData);
+    
     const newMatch = await db.createMatch({
       ...matchData,
       stage_id: stageId,
-      group_id: groupId
+      group_id: numericGroupId
     });
     
+    console.log('Созданный матч в группе:', newMatch);
     res.status(201).json(newMatch);
   } catch (err) {
     console.error('Ошибка при создании матча в группе:', err);
-    res.status(500).json({ error: 'Не удалось создать матч в группе' });
+    res.status(500).json({ error: 'Не удалось создать матч в группе', details: err.message });
   }
 });
 

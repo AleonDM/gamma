@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import TournamentStages from '../components/TournamentStages';
 import StageCreateModal from '../components/StageCreateModal';
+import MatchCreateModal from '../components/MatchCreateModal';
 import './TournamentPage.css';
 
 const TournamentPage = ({ isAdmin }) => {
@@ -12,6 +13,12 @@ const TournamentPage = ({ isAdmin }) => {
   const [error, setError] = useState(null);
   const [showStageModal, setShowStageModal] = useState(false);
   const [selectedStage, setSelectedStage] = useState(null);
+  const [showMatchModal, setShowMatchModal] = useState(false);
+  const [matchData, setMatchData] = useState({
+    stageId: null,
+    groupId: null,
+    match: null
+  });
 
   useEffect(() => {
     loadTournamentData();
@@ -47,6 +54,26 @@ const TournamentPage = ({ isAdmin }) => {
 
   const handleSaveStage = () => {
     setShowStageModal(false);
+    loadTournamentData();
+  };
+
+  const handleMatchesUpdated = (data) => {
+    if (data.type === 'add' || data.type === 'edit') {
+      setMatchData({
+        stageId: data.stageId,
+        groupId: data.groupId,
+        match: data.match || null
+      });
+      setShowMatchModal(true);
+    }
+  };
+
+  const handleCloseMatchModal = () => {
+    setShowMatchModal(false);
+  };
+
+  const handleSaveMatch = () => {
+    setShowMatchModal(false);
     loadTournamentData();
   };
 
@@ -169,6 +196,7 @@ const TournamentPage = ({ isAdmin }) => {
           isAdmin={isAdmin}
           onEditStage={handleEditStage}
           onStageUpdated={loadTournamentData}
+          onMatchesUpdated={handleMatchesUpdated}
         />
       </div>
       
@@ -178,6 +206,16 @@ const TournamentPage = ({ isAdmin }) => {
           stage={selectedStage}
           onClose={handleCloseStageModal}
           onSave={handleSaveStage}
+        />
+      )}
+      
+      {showMatchModal && (
+        <MatchCreateModal 
+          stageId={matchData.stageId}
+          groupId={matchData.groupId}
+          match={matchData.match}
+          onClose={handleCloseMatchModal}
+          onSave={handleSaveMatch}
         />
       )}
     </div>

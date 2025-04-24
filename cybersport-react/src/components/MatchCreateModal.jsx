@@ -3,6 +3,9 @@ import axios from 'axios';
 import './MatchCreateModal.css';
 
 const MatchCreateModal = ({ stageId, groupId, match, onClose, onSave }) => {
+  // Конвертируем groupId в число, если это строка
+  const numericGroupId = groupId ? parseInt(groupId, 10) : null;
+  
   const isNew = !match;
   const modalRef = useRef(null);
   const [teams, setTeams] = useState([]);
@@ -23,20 +26,14 @@ const MatchCreateModal = ({ stageId, groupId, match, onClose, onSave }) => {
   const [error, setError] = useState(null);
   
   useEffect(() => {
-    // Загружаем список команд для выбора
+    // Загружаем команды при монтировании компонента
     const loadTeams = async () => {
       try {
-        let endpoint = '/api/teams';
-        
-        // Если это групповой этап, загружаем только команды из нужной группы
-        if (groupId) {
-          endpoint = `/api/tournaments/stages/${stageId}/groups/${groupId}/teams`;
-        }
-        
-        const response = await axios.get(endpoint);
+        const response = await axios.get('/api/teams');
         setTeams(response.data);
       } catch (err) {
         console.error('Ошибка при загрузке команд:', err);
+        setError('Не удалось загрузить список команд');
       }
     };
     
@@ -89,7 +86,7 @@ const MatchCreateModal = ({ stageId, groupId, match, onClose, onSave }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [match, stageId, groupId]);
+  }, [match, stageId, numericGroupId]);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -141,21 +138,22 @@ const MatchCreateModal = ({ stageId, groupId, match, onClose, onSave }) => {
       
       // Определяем endpoint в зависимости от типа (группа или нет)
       let endpoint = `/api/tournaments/stages/${stageId}/matches`;
-      if (groupId) {
-        endpoint = `/api/tournaments/stages/${stageId}/groups/${groupId}/matches`;
+      if (numericGroupId) {
+        endpoint = `/api/tournaments/stages/${stageId}/groups/${numericGroupId}/matches`;
       }
       
       if (isNew) {
         // Создаем новый матч
-        await axios.post(endpoint, submitData);
+        const response = await axios.post(endpoint, submitData);
       } else {
         // Обновляем существующий матч
-        await axios.put(`${endpoint}/${match.id}`, submitData);
+        const response = await axios.put(`${endpoint}/${match.id}`, submitData);
       }
       
       onSave && onSave();
     } catch (err) {
       console.error('Ошибка при сохранении матча:', err);
+      console.error('Детали ошибки:', err.response?.data || err.message);
       setError('Не удалось сохранить матч. Пожалуйста, попробуйте позже.');
     } finally {
       setLoading(false);

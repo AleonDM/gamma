@@ -192,29 +192,45 @@ const StageCreateModal = ({ tournamentId, stage, onClose, onSave }) => {
         const response = await axios.post(`/api/tournaments/${tournamentId}/stages`, stageToCreate);
         const newStageId = response.data.id;
         
-        // Затем создаем группы для этого этапа
-        if (formData.format === 'groups' && formData.groups.length > 0) {
+        // Создаем группы, если это групповой формат
+        if (formData.format === 'groups') {
           try {
+            console.log(`Создаем группы для нового этапа ${newStageId}, групп: ${formData.groups.length}`);
+            
+            // Создаем группы и сохраняем их ID
+            const createdGroups = [];
+            
             for (const group of formData.groups) {
+              try {
+                // Создаем группу с командами в одном запросе
+                console.log(`Создаем группу "${group.name}" с ${group.teams ? group.teams.length : 0} командами`);
+                
               const groupToCreate = {
                 name: group.name,
                 teams: group.teams || []
               };
               
               const groupResponse = await axios.post(`/api/tournaments/stages/${newStageId}/groups`, groupToCreate);
-              const newGroupId = groupResponse.data.id;
-              
-              // Добавляем команды в группу
-              if (group.teams && group.teams.length > 0) {
-                for (const team of group.teams) {
-                  await axios.post(`/api/tournaments/stages/${newStageId}/groups/${newGroupId}/teams`, {
-                    team_id: team.id
+                
+                if (groupResponse.data && groupResponse.data.id) {
+                  console.log(`Группа "${group.name}" создана с ID: ${groupResponse.data.id}`);
+                  createdGroups.push({
+                    ...group,
+                    id: groupResponse.data.id
                   });
                 }
+              } catch (groupError) {
+                console.error(`Ошибка при создании группы "${group.name}":`, groupError);
+                if (groupError.response) {
+                  console.error(`Статус ошибки: ${groupError.response.status}, данные:`, groupError.response.data);
+                }
+                setError(`Ошибка при создании группы ${group.name}. Проверьте журнал ошибок.`);
               }
             }
-          } catch (groupError) {
-            console.error('Ошибка при создании групп:', groupError);
+            
+            console.log(`Успешно создано ${createdGroups.length} групп из ${formData.groups.length}`);
+          } catch (groupsError) {
+            console.error('Ошибка при создании групп:', groupsError);
             setError('Этап создан, но возникла ошибка при создании групп. Пожалуйста, проверьте настройки групп.');
           }
         }
@@ -242,51 +258,64 @@ const StageCreateModal = ({ tournamentId, stage, onClose, onSave }) => {
             // Обрабатываем каждую группу в форме
             for (const group of formData.groups) {
               if (group.id) {
-                // Обновляем существующую группу
+                try {
+                  console.log(`Обновляем группу ${group.id} (${group.name}) с ${group.teams.length} командами`);
+                  
+                  // Сначала проверяем, существует ли группа
+                  try {
+                    const checkGroupResponse = await axios.get(`/api/tournaments/stages/${stage.id}/groups/${group.id}`);
+                    
+                    if (checkGroupResponse.status === 200) {
+                      // Группа существует, обновляем её
                 await axios.put(`/api/tournaments/stages/${stage.id}/groups/${group.id}`, {
-                  name: group.name
-                });
-                
-                // Удаляем все команды из группы и добавляем новые
-                // Сначала получаем текущие команды
-                const currentTeamsResponse = await axios.get(`/api/tournaments/stages/${stage.id}/groups/${group.id}/teams`);
-                const currentTeams = currentTeamsResponse.data;
-                
-                // Удаляем команды, которых нет в новом списке
-                for (const currentTeam of currentTeams) {
-                  const teamExists = group.teams.some(t => t.id === currentTeam.id);
-                  if (!teamExists) {
-                    await axios.delete(`/api/tournaments/stages/${stage.id}/groups/${group.id}/teams/${currentTeam.id}`);
-                  }
-                }
-                
-                // Добавляем новые команды
-                for (const team of group.teams) {
-                  const teamExists = currentTeams.some(t => t.id === team.id);
-                  if (!teamExists) {
-                    await axios.post(`/api/tournaments/stages/${stage.id}/groups/${group.id}/teams`, {
-                      team_id: team.id
+                        name: group.name,
+                        teams: group.teams
+                      });
+                    }
+                  } catch (checkError) {
+                    // Группа не существует, создаем новую
+                    console.warn(`Группа ${group.id} не найдена. Создаем новую группу.`);
+                    const newGroupResponse = await axios.post(`/api/tournaments/stages/${stage.id}/groups`, {
+                      name: group.name,
+                      teams: group.teams
                     });
-                  }
+                    
+                    // Обновляем ID группы в локальных данных
+                    group.id = newGroupResponse.data.id;
                 }
                 
                 // Удаляем из списка ID, чтобы не удалить группу позже
                 const index = existingGroupIds.indexOf(group.id);
                 if (index !== -1) {
                   existingGroupIds.splice(index, 1);
+                  }
+                } catch (updateError) {
+                  console.error(`Ошибка при обработке группы ${group.id}:`, updateError);
+                  if (updateError.response) {
+                    console.error(`Статус ошибки: ${updateError.response.status}, данные: `, updateError.response.data);
+                  }
+                  setError(`Ошибка при работе с группой ${group.name}. Проверьте журнал ошибок.`);
                 }
               } else {
-                // Создаем новую группу
+                // Создаем новую группу со всеми данными сразу
+                try {
+                  console.log(`Создаем новую группу "${group.name}" с ${group.teams.length} командами`);
                 const newGroupResponse = await axios.post(`/api/tournaments/stages/${stage.id}/groups`, {
-                  name: group.name
-                });
-                const newGroupId = newGroupResponse.data.id;
-                
-                // Добавляем команды в новую группу
-                for (const team of group.teams) {
-                  await axios.post(`/api/tournaments/stages/${stage.id}/groups/${newGroupId}/teams`, {
-                    team_id: team.id
+                    name: group.name,
+                    teams: group.teams
                   });
+                  
+                  // Сохраняем ID созданной группы
+                  if (newGroupResponse.data && newGroupResponse.data.id) {
+                    group.id = newGroupResponse.data.id;
+                    console.log(`Группа создана с ID: ${group.id}`);
+                  }
+                } catch (createError) {
+                  console.error(`Ошибка при создании новой группы "${group.name}":`, createError);
+                  if (createError.response) {
+                    console.error(`Статус ошибки: ${createError.response.status}, данные: `, createError.response.data);
+                  }
+                  setError(`Ошибка при создании группы ${group.name}. Проверьте журнал ошибок.`);
                 }
               }
             }

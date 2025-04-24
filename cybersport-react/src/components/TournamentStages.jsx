@@ -4,7 +4,7 @@ import TournamentMatches from './TournamentMatches';
 import { FiEdit2, FiTrash2, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import './TournamentStages.css';
 
-const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated }) => {
+const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated, onMatchesUpdated }) => {
   const [stages, setStages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -236,8 +236,21 @@ const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated }
                             stageId={stage.id} 
                             groupId={group.id}
                             isAdmin={isAdmin}
-                            onMatchesUpdated={loadStages}
+                            onMatchesUpdated={onMatchesUpdated}
                           />
+                          
+                          {/* Тестовый индикатор, чтобы определить, видны ли вообще компоненты в этой области */}
+                          <div style={{
+                            backgroundColor: 'purple', 
+                            color: 'white', 
+                            padding: '10px', 
+                            margin: '10px 0', 
+                            textAlign: 'center',
+                            borderRadius: '5px',
+                            fontWeight: 'bold'
+                          }}>
+                            Тестовая область группы {group.id}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -249,7 +262,7 @@ const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated }
                   <TournamentMatches 
                     stageId={stage.id}
                     isAdmin={isAdmin}
-                    onMatchesUpdated={loadStages}
+                    onMatchesUpdated={onMatchesUpdated}
                   />
                 </div>
               ) : (
