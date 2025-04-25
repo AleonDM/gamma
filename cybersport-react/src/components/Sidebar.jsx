@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import NewsList from './NewsList';
 import AdminLoginButton from './AdminLoginButton';
 import AdminLogoutButton from './AdminLogoutButton';
@@ -7,6 +7,7 @@ import './Sidebar.css';
 
 const Sidebar = ({ isAdmin, className }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeLink, setActiveLink] = useState('all');
   
   // Обновляем активную ссылку при изменении маршрута
@@ -21,6 +22,12 @@ const Sidebar = ({ isAdmin, className }) => {
   // Обработчик для клика по ссылке дисциплины
   const handleDisciplineClick = (discipline) => {
     setActiveLink(discipline);
+  };
+
+  // Обработчик для кнопки входа
+  const handleLoginClick = () => {
+    console.log('Нажата кнопка входа, переход на /login');
+    navigate('/login');
   };
 
   return (
@@ -102,9 +109,14 @@ const Sidebar = ({ isAdmin, className }) => {
             </Link>
           )}
           
-          <Link to="/login" id="links">
+          <div 
+            id="links" 
+            className={location.pathname === '/login' ? 'active' : ''}
+            onClick={handleLoginClick}
+            style={{ cursor: 'pointer' }}
+          >
             вход
-          </Link>
+          </div>
         </div>
         
         <div className="NEWSsidebar">
