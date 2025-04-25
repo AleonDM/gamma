@@ -10,12 +10,26 @@ const LoginPage = ({ setIsAdmin }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Проверяем, есть ли сохраненная команда в localStorage
-    const savedTeamCode = localStorage.getItem('teamCode');
-    if (savedTeamCode) {
-      navigate('/');
+    // Проверяем, если пользователь явно перешел на страницу логина,
+    // даем возможность выполнить вход заново, не перенаправляя автоматически
+    const urlParams = new URLSearchParams(window.location.search);
+    const resetParam = urlParams.get('reset');
+    
+    // Если явно запрошен сброс авторизации или нет параметра reset
+    if (resetParam === 'true') {
+      // Очищаем предыдущую авторизацию
+      localStorage.removeItem('teamCode');
+      localStorage.removeItem('teamName');
+      localStorage.removeItem('isAdmin');
+      setIsAdmin(false);
+    } else {
+      // Иначе проверяем наличие авторизации и перенаправляем
+      const savedTeamCode = localStorage.getItem('teamCode');
+      if (savedTeamCode) {
+        navigate('/');
+      }
     }
-  }, [navigate]);
+  }, [navigate, setIsAdmin]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

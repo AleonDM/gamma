@@ -27,7 +27,8 @@ const Sidebar = ({ isAdmin, className }) => {
   // Обработчик для кнопки входа
   const handleLoginClick = () => {
     console.log('Нажата кнопка входа, переход на /login');
-    navigate('/login');
+    // Добавляем параметр reset=true, чтобы сбросить текущую авторизацию
+    window.location.href = '/login?reset=true';
   };
 
   return (
@@ -133,4 +134,4 @@ const Sidebar = ({ isAdmin, className }) => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

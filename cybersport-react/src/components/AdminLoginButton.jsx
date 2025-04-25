@@ -6,13 +6,8 @@ const AdminLoginButton = () => {
 
   const handleAdminLogin = () => {
     console.log('Нажатие на кнопку входа для администратора');
-    // Используем прямую навигацию через window.location для обхода любых потенциальных проблем с React Router
-    window.location.href = '/login';
-    
-    // Запасной вариант с React Router, если прямая навигация не сработает через 500мс
-    setTimeout(() => {
-      navigate('/login');
-    }, 500);
+    // Используем навигацию с параметром reset=true, чтобы сбросить текущую авторизацию
+    window.location.href = '/login?reset=true';
   };
 
   return (
