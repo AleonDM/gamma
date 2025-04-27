@@ -16,8 +16,14 @@ console.log('API URL:', API_BASE_URL);
 // Обязательно нужен перехватчик запросов для переадресации относительных путей на API сервер
 axios.interceptors.request.use(config => {
   if (config.url.startsWith('/api')) {
-    // Приводим URL к абсолютному виду
-    config.url = `${API_BASE_URL}${config.url}`;
+    // Убираем слеш в начале пути, чтобы избежать дублирования
+    const apiPath = config.url.startsWith('/api') ? config.url.substring(1) : config.url;
+    
+    // Проверяем, заканчивается ли API_BASE_URL слешем
+    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+    
+    // Формируем URL без двойного слеша
+    config.url = `${baseUrl}/${apiPath}`;
     console.log('Перенаправление запроса на:', config.url);
   }
   return config;
