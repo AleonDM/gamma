@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './TeamDetailsPage.css';
+import { ADMIN_CODE } from '../utils/env';
 
 const TeamDetailsPage = () => {
   const { teamId } = useParams();
@@ -14,7 +15,7 @@ const TeamDetailsPage = () => {
   useEffect(() => {
     // Проверяем, является ли текущий пользователь администратором
     const teamCode = localStorage.getItem('teamCode');
-    if (teamCode === 'admin') {
+    if (teamCode === ADMIN_CODE) {
       setIsAdmin(true);
     }
 
@@ -56,78 +57,75 @@ const TeamDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="team-details-page">
-        <div className="team-details-loading">
-          Загрузка информации о команде...
-        </div>
+      <div className="team-details-page loading">
+        <div className="loading-spinner"></div>
+        <p>Загрузка информации о команде...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="team-details-page">
-        <div className="team-details-error">
-          {error}
-          <button className="back-button" onClick={handleBackClick}>
-            Вернуться назад
-          </button>
-        </div>
+      <div className="team-details-page error">
+        <div className="error-icon">⚠️</div>
+        <h2>Произошла ошибка</h2>
+        <p>{error}</p>
+        <button className="back-button" onClick={handleBackClick}>
+          Вернуться
+        </button>
       </div>
     );
   }
 
   if (!team) {
     return (
-      <div className="team-details-page">
-        <div className="team-details-error">
-          Команда не найдена
-          <button className="back-button" onClick={handleBackClick}>
-            Вернуться назад
-          </button>
-        </div>
+      <div className="team-details-page not-found">
+        <div className="not-found-icon">🔍</div>
+        <h2>Команда не найдена</h2>
+        <p>Запрашиваемая команда не существует или была удалена</p>
+        <button className="back-button" onClick={handleBackClick}>
+          Вернуться
+        </button>
       </div>
     );
   }
 
+  // Обработка участников команды
+  const members = Array.isArray(team.members) ? team.members : [];
+
   return (
     <div className="team-details-page">
       <div className="team-details-header">
-        <button className="back-button" onClick={handleBackClick}>
-          &larr; Назад
-        </button>
         <h1>{team.name}</h1>
         {isAdmin && (
-          <button className="edit-button" onClick={handleEditClick}>
+          <button className="edit-team-button" onClick={handleEditClick}>
             Редактировать
           </button>
         )}
       </div>
       
       <div className="team-details-content">
-        <div className="team-info-section">
-          <div className="team-info-card">
-            <div className="team-code">
-              <h3>Код команды</h3>
-              <p>{team.code}</p>
-            </div>
-            
-            <div className="team-members">
-              <h3>Участники</h3>
-              {team.members && team.members.length > 0 ? (
-                <ul className="members-list">
-                  {team.members.map((member, index) => (
-                    <li key={index} className="member-item">
-                      <div className="member-name">{member.name}</div>
-                      {member.role && <div className="member-role">{member.role}</div>}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="no-data">Нет участников</p>
-              )}
-            </div>
+        <div className="team-info-block">
+          <div className="team-code-info">
+            <h3>Код команды</h3>
+            <p>{team.code}</p>
           </div>
+        </div>
+        
+        <div className="team-members-block">
+          <h3>Состав команды</h3>
+          {members.length > 0 ? (
+            <ul className="members-list">
+              {members.map((member, index) => (
+                <li key={index} className="member-item">
+                  <div className="member-name">{member.name}</div>
+                  {member.role && <div className="member-role">{member.role}</div>}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="no-data">Нет информации об участниках команды</p>
+          )}
           
           {team.tournaments && team.tournaments.length > 0 && (
             <div className="team-tournaments">

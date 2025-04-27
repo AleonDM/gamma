@@ -9,6 +9,7 @@ import TeamDetailsPage from './components/TeamDetailsPage';
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
 import TournamentPage from './pages/TournamentPage';
+import { ADMIN_CODE } from './utils/env';
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -17,7 +18,7 @@ function App() {
     // Проверка авторизации администратора при загрузке
     const teamCode = localStorage.getItem('teamCode');
     console.log('Проверка авторизации администратора, код команды:', teamCode);
-    if (teamCode === 'admin') {
+    if (teamCode === ADMIN_CODE) {
       console.log('Авторизация администратора подтверждена');
       setIsAdmin(true);
     }

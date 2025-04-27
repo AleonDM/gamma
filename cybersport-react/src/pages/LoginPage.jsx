@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './LoginPage.css';
+import { ADMIN_CODE } from '../utils/env';
 
 const LoginPage = ({ setIsAdmin }) => {
   const [teamCode, setTeamCode] = useState('');
@@ -46,9 +47,9 @@ const LoginPage = ({ setIsAdmin }) => {
       console.log('Попытка входа с кодом:', teamCode);
       
       // Специальная обработка для админа
-      if (teamCode.toLowerCase() === 'admin') {
+      if (teamCode.toLowerCase() === ADMIN_CODE.toLowerCase()) {
         console.log('Вход администратора успешен');
-        localStorage.setItem('teamCode', 'admin');
+        localStorage.setItem('teamCode', ADMIN_CODE);
         localStorage.setItem('teamName', 'Администратор');
         localStorage.setItem('isAdmin', 'true');
         setIsAdmin(true);
@@ -90,15 +91,10 @@ const LoginPage = ({ setIsAdmin }) => {
   return (
     <div className="login-page">
       <div className="login-container">
-        <h1>Вход в систему</h1>
-        <p className="login-description">
-          Введите код вашей команды для доступа к турнирной платформе
-        </p>
+        <h2>Вход в команду</h2>
         
-        {error && <div className="login-error">{error}</div>}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="input-group">
             <label htmlFor="teamCode">Код команды</label>
             <input
               type="text"
@@ -110,6 +106,8 @@ const LoginPage = ({ setIsAdmin }) => {
             />
           </div>
           
+          {error && <div className="error-message">{error}</div>}
+          
           <button 
             type="submit" 
             className="login-button"
@@ -118,6 +116,10 @@ const LoginPage = ({ setIsAdmin }) => {
             {loading ? 'Проверка...' : 'Войти'}
           </button>
         </form>
+        
+        <div className="login-footer">
+          <p>Для входа требуется код команды или права администратора</p>
+        </div>
       </div>
     </div>
   );

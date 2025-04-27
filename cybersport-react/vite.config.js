@@ -8,9 +8,25 @@ export default defineConfig({
     proxy: {
       // Проксирование API запросов на серверную часть
       '/api': {
-        target: 'http://localhost:3002',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
+      }
+    }
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    // Опционально: минимизация бандла
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Разделение кода на отдельные бандлы
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['react-icons']
+        }
       }
     }
   }

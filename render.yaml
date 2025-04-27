@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: cybersport-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ADMIN_CODE
+        sync: false
+      - key: CLIENT_URL
+        value: https://your-netlify-app.netlify.app
+    disk:
+      name: cybersport-data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /api/health 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './TeamPage.css';
+import { ADMIN_CODE } from '../utils/env';
 
 const TeamPage = () => {
   const { teamId } = useParams();
@@ -59,60 +60,46 @@ const TeamPage = () => {
       
       // Проверяем авторизацию
       const storedTeamCode = localStorage.getItem('teamCode');
-      if (storedTeamCode === 'admin' || storedTeamCode === teamData.code) {
+      if (storedTeamCode === ADMIN_CODE || storedTeamCode === teamData.code) {
         setIsAuthorized(true);
       }
       
       // Загружаем турниры команды
-      if (teamData.tournaments) {
-        let tournamentIds = [];
-        try {
-          tournamentIds = typeof teamData.tournaments === 'string'
-            ? JSON.parse(teamData.tournaments)
-            : teamData.tournaments;
+      try {
+        const tournamentsIds = typeof teamData.tournaments === 'string' 
+          ? JSON.parse(teamData.tournaments) 
+          : teamData.tournaments;
+        
+        if (Array.isArray(tournamentsIds) && tournamentsIds.length > 0) {
+          // В реальном приложении здесь должен быть запрос к API для получения турниров
+          const tournamentsData = [];
           
-          if (tournamentIds && tournamentIds.length > 0) {
+          // Пробуем загрузить турниры из API
+          for (const tournamentId of tournamentsIds) {
             try {
-              // Пытаемся загрузить турниры из API
-              const tournamentsResponse = await axios.get('/api/tournaments');
-              
-              // Фильтруем турниры по ID
-              const teamTournaments = tournamentsResponse.data.filter(tournament => 
-                tournamentIds.includes(tournament.id)
-              );
-              
-              setTournaments(teamTournaments);
-            } catch (tournErr) {
-              console.error('Не удалось загрузить турниры из API:', tournErr);
-              
-              // Если API недоступен, используем мок-данные для турниров
-              setTournaments([
-                {
-                  id: 1,
-                  name: "Турнир по Dota 2",
-                  discipline: "dota2",
-                  date: new Date().toISOString(),
-                  status: "upcoming"
-                },
-                {
-                  id: 2,
-                  name: "Турнир по CS 2",
-                  discipline: "cs2",
-                  date: new Date().toISOString(),
-                  status: "completed"
-                }
-              ]);
+              const tournamentResponse = await axios.get(`/api/tournaments/${tournamentId}`);
+              tournamentsData.push(tournamentResponse.data);
+            } catch (err) {
+              console.error(`Не удалось загрузить информацию о турнире ${tournamentId}:`, err);
+              // Добавляем заглушку, если не удалось загрузить данные
+              tournamentsData.push({
+                id: tournamentId,
+                name: `Турнир ${tournamentId}`,
+                date: new Date().toISOString(),
+                status: 'upcoming',
+                discipline: 'Не указано'
+              });
             }
           }
-        } catch (parseErr) {
-          console.error('Ошибка при парсинге турниров:', parseErr);
+          
+          setTournaments(tournamentsData);
         }
+      } catch (err) {
+        console.error('Ошибка при загрузке турниров команды:', err);
       }
-      
-      setError(null);
     } catch (err) {
       console.error('Ошибка при загрузке данных команды:', err);
-      setError('Не удалось загрузить информацию о команде');
+      setError('Не удалось загрузить информацию о команде. Пожалуйста, попробуйте позже.');
     } finally {
       setLoading(false);
     }
@@ -137,8 +124,8 @@ const TeamPage = () => {
         localStorage.setItem('teamCode', teamCode);
         setIsAuthorized(true);
         setError(null);
-      } else if (teamCode === 'admin') {
-        localStorage.setItem('teamCode', 'admin');
+      } else if (teamCode === ADMIN_CODE) {
+        localStorage.setItem('teamCode', ADMIN_CODE);
         setIsAuthorized(true);
         setError(null);
       } else {
@@ -187,78 +174,73 @@ const TeamPage = () => {
   }
   
   // Парсим участников команды, если они представлены строкой
-  const members = typeof team.members === 'string'
-    ? JSON.parse(team.members)
+  const members = typeof team.members === 'string' 
+    ? JSON.parse(team.members) 
     : team.members || [];
+  
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'upcoming':
+      case 'Запланирован':
+        return 'upcoming';
+      case 'registration':
+      case 'Регистрация':
+        return 'registration';
+      case 'ongoing':
+      case 'Идёт':
+        return 'ongoing';
+      case 'completed':
+      case 'Окончен':
+        return 'completed';
+      default:
+        return 'unknown';
+    }
+  };
   
   return (
     <div className="team-page">
       <div className="team-header">
-        <div className="team-title-block">
-          <h1>{team.name}</h1>
-          <div className="team-code">
-            Код команды: {isAuthorized ? team.code : '***********'}
-          </div>
-        </div>
+        <h1>{team.name}</h1>
         
-        <div className="team-actions">
-          {isAuthorized ? (
-            <button onClick={handleLogout} className="logout-button">
-              Выйти
-            </button>
-          ) : (
-            <form onSubmit={handleLogin} className="login-form">
+        {isAuthorized ? (
+          <button onClick={handleLogout} className="team-logout-button">
+            Выйти
+          </button>
+        ) : (
+          <div className="team-login-form">
+            <form onSubmit={handleLogin}>
               <input
-                type="password"
-                placeholder="Введите код команды"
+                type="text"
                 value={teamCode}
                 onChange={(e) => setTeamCode(e.target.value)}
+                placeholder="Введите код команды"
               />
-              <button type="submit" className="login-button">
-                Войти
-              </button>
+              <button type="submit">Войти</button>
             </form>
-          )}
-          
-          <button onClick={() => navigate('/')} className="back-button">
-            На главную
-          </button>
-        </div>
+            {error && <div className="login-error">{error}</div>}
+          </div>
+        )}
       </div>
       
       <div className="team-content">
-        <section className="team-section members-section">
-          <h2 className="section-title">Состав команды</h2>
-          {isAuthorized ? (
-            <div className="team-members-list">
-              {members.length > 0 ? (
-                members.map((member, index) => (
-                  <div key={index} className="team-member-item">
-                    <div className="member-avatar">
-                      {member.name.charAt(0)}
-                    </div>
-                    <div className="member-info">
-                      <span className="member-name">{member.name}</span>
-                      {member.role && (
-                        <span className="member-role">{member.role}</span>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="no-data">
-                  <p>Информация о составе команды отсутствует</p>
+        <section className="team-section">
+          <h2 className="section-title">Участники команды</h2>
+          {members.length > 0 ? (
+            <div className="team-members">
+              {members.map((member, index) => (
+                <div key={index} className="team-member">
+                  <h3>{member.name}</h3>
+                  {member.role && <p className="member-role">{member.role}</p>}
                 </div>
-              )}
+              ))}
             </div>
           ) : (
-            <div className="locked-content">
-              <div className="lock-icon">🔒</div>
-              <p>Чтобы увидеть состав команды, введите код команды в форму входа</p>
+            <div className="no-data">
+              <p>У команды пока нет участников</p>
             </div>
           )}
         </section>
-
+        
         {isAuthorized && (
           <section className="team-section">
             <h2 className="section-title">Турниры команды</h2>
@@ -306,21 +288,6 @@ function getStatusText(status) {
       return 'Завершен';
     default:
       return status;
-  }
-}
-
-function getStatusClass(status) {
-  switch (status) {
-    case 'upcoming':
-      return 'upcoming';
-    case 'registration':
-      return 'registration';
-    case 'ongoing':
-      return 'live';
-    case 'completed':
-      return 'completed';
-    default:
-      return 'default';
   }
 }
 

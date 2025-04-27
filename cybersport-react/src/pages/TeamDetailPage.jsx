@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import TeamEditModal from '../components/TeamEditModal';
 import '../styles/TeamDetailPage.css';
+import { ADMIN_CODE } from '../utils/env';
 
 const TeamDetailPage = () => {
   const { id } = useParams();
@@ -14,7 +15,7 @@ const TeamDetailPage = () => {
 
   useEffect(() => {
     const teamCode = localStorage.getItem('teamCode');
-    setIsAdmin(teamCode === 'admin123');
+    setIsAdmin(teamCode === ADMIN_CODE);
     
     loadTeam();
   }, [id]);
@@ -67,10 +68,7 @@ const TeamDetailPage = () => {
   if (error) {
     return (
       <div className="team-detail-page">
-        <div className="error">
-          <p>{error}</p>
-          <Link to="/teams" className="back-button">Вернуться к списку команд</Link>
-        </div>
+        <div className="error-message">{error}</div>
       </div>
     );
   }
@@ -78,86 +76,67 @@ const TeamDetailPage = () => {
   if (!team) {
     return (
       <div className="team-detail-page">
-        <div className="error">
-          <p>Команда не найдена</p>
-          <Link to="/teams" className="back-button">Вернуться к списку команд</Link>
-        </div>
+        <div className="not-found">Команда не найдена</div>
       </div>
     );
   }
 
   return (
     <div className="team-detail-page">
-      <div className="team-detail-container">
-        <div className="team-detail-header">
-          <div className="team-title-block">
-            <h1>{team.name}</h1>
-            <span className="team-code">Код команды: {team.code}</span>
+      <div className="team-header">
+        <h1>{team.name}</h1>
+        {isAdmin && (
+          <button onClick={handleEdit} className="edit-button">
+            Редактировать
+          </button>
+        )}
+      </div>
+      
+      <div className="team-content">
+        <div className="team-info">
+          <div className="info-section">
+            <h2>Код команды</h2>
+            <p>{team.code}</p>
           </div>
-          <div className="team-actions">
-            {isAdmin && (
-              <button onClick={handleEdit} className="edit-button">
-                Редактировать
-              </button>
-            )}
-            <Link to="/teams" className="back-button">
-              Назад к списку
-            </Link>
-          </div>
-        </div>
-
-        <div className="team-detail-content">
-          <div className="team-section">
-            <h2>Участники команды</h2>
+          
+          <div className="info-section">
+            <h2>Участники</h2>
             {team.members && team.members.length > 0 ? (
-              <ul className="team-members-list">
+              <ul className="members-list">
                 {team.members.map((member, index) => (
-                  <li key={index} className="team-member-item">
-                    <div className="member-info">
-                      <span className="member-name">{member.name}</span>
-                      <span className="member-role">{member.role}</span>
-                    </div>
+                  <li key={index}>
+                    <strong>{member.name}</strong>
+                    {member.role && <span> - {member.role}</span>}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="no-data">Нет участников в команде</p>
+              <p>Нет участников</p>
             )}
           </div>
-
-          <div className="team-section">
-            <h2>Турниры команды</h2>
-            {team.tournaments && team.tournaments.length > 0 ? (
-              <ul className="team-tournaments-list">
-                {team.tournaments.map((tournament, index) => (
-                  <li key={index} className="team-tournament-item">
-                    <Link to={`/tournaments/${tournament.id}`} className="tournament-link">
-                      <div className="tournament-info">
-                        <span className="tournament-name">{tournament.name}</span>
-                        <span className="tournament-date">{new Date(tournament.date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="tournament-result">
-                        <span className={`tournament-place place-${tournament.place}`}>
-                          {tournament.place <= 3 ? `${tournament.place} место` : tournament.place}
-                        </span>
-                      </div>
+          
+          {team.tournaments && team.tournaments.length > 0 && (
+            <div className="info-section">
+              <h2>Турниры</h2>
+              <ul className="tournaments-list">
+                {team.tournaments.map((tournamentId, index) => (
+                  <li key={index}>
+                    <Link to={`/tournaments/${tournamentId}`}>
+                      Турнир #{tournamentId}
                     </Link>
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p className="no-data">Нет турниров у команды</p>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
-
+      
       {showEditModal && (
         <TeamEditModal
           team={team}
           onClose={handleCloseModal}
           onTeamUpdated={handleTeamUpdated}
-          isNewTeam={false}
         />
       )}
     </div>

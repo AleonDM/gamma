@@ -4,9 +4,10 @@
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  margin-bottom: 1rem;
   position: relative;
   cursor: pointer;
+  width: 300px;
+  height: 100%;
 }
 
 .tournament-card:hover {
@@ -248,5 +249,6 @@
   text-decoration: none;
   color: inherit;
   display: block;
-  margin-bottom: 1.5rem;
+  width: 300px;
+  height: 100%;
 } 

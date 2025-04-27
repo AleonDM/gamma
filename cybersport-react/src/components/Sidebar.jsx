@@ -35,7 +35,7 @@ const Sidebar = ({ isAdmin, className }) => {
     <div className={`sidebar ${className || ''}`}>
       <div className="contents_inner">
         <div id="space-sidebar"></div>
-        <div id="logo">Negr</div>
+        <div id="logo">МШКЛ</div>
         <div id="space-sidebar">спорт 1296</div>
         
         <div className="element">

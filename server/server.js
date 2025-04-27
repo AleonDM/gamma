@@ -8,10 +8,31 @@ const db = require('./database');
 
 // Создаем приложение Express
 const app = express();
-const PORT = process.env.PORT || 3002; // Меняем порт на 3002, чтобы избежать конфликта
 
-// Middleware
-app.use(cors()); // Разрешаем кросс-доменные запросы
+// Получение порта из переменной окружения или использование стандартного
+const PORT = process.env.PORT || 3001;
+
+// Разрешаем CORS для всех источников или только для конкретного домена
+if (process.env.NODE_ENV === 'production') {
+  // В продакшн режиме разрешаем запросы только с домена клиентского приложения
+  const allowedOrigins = [process.env.CLIENT_URL || 'https://your-netlify-app.netlify.app'];
+  app.use(cors({
+    origin: function(origin, callback) {
+      // Проверяем, является ли origin разрешенным
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.warn(`Запрос от неразрешенного источника: ${origin}`);
+        callback(new Error('Запрещено CORS политикой'));
+      }
+    },
+    credentials: true
+  }));
+} else {
+  // В режиме разработки разрешаем все запросы
+  app.use(cors());
+}
+
 app.use(bodyParser.json()); // Парсим JSON-запросы
 app.use(morgan('dev')); // Логируем запросы
 
@@ -648,6 +669,11 @@ app.delete('/api/tournaments/stages/:stageId/matches/:matchId', async (req, res)
   }
 });
 
+// Эндпоинт для проверки работоспособности сервера (health check)
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'API server is running' });
+});
+
 // Для React-роутинга отдаем index.html на все неизвестные маршруты
 // Только если мы не в режиме разработки
 if (!isDevMode && fs.existsSync(path.join(reactBuildPath, 'index.html'))) {
@@ -673,7 +699,7 @@ if (!isDevMode && fs.existsSync(path.join(reactBuildPath, 'index.html'))) {
 // Запускаем сервер
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
-  console.log(`API доступно по адресу: http://localhost:${PORT}/api`);
+  console.log(`Режим: ${process.env.NODE_ENV || 'development'}`);
   
   if (isDevMode) {
     console.log(`Запущен в режиме разработки - клиент доступен по отдельному адресу (обычно http://localhost:5173)`);

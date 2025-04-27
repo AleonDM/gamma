@@ -1,1 +1,43 @@
+# Зависимости
 node_modules
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+lerna-debug.log
+
+# Окружение
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Файлы базы данных SQLite
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Логи
+logs
+*.log
+
+# Кэш директорий
+.npm
+.eslintcache
+
+# Редакторы и IDE
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Операционные системы
+.DS_Store
+Thumbs.db
+
+# Промежуточные файлы сборки
+dist
+build
+.tmp

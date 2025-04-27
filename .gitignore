@@ -1,0 +1,51 @@
+# Зависимости
+/node_modules
+*/node_modules
+
+# Среды выполнения
+.env
+*.env
+.env.*
+!.env.example
+
+# Базы данных
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+database.db
+
+# Сборки
+*/dist
+*/build
+
+# Логи и отладка
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs
+*.log
+
+# Файлы системы
+.DS_Store
+Thumbs.db
+
+# Кэши и временные файлы
+.cache
+.tmp
+.temp
+.eslintcache
+.npm
+
+# Редакторы и IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw? 
