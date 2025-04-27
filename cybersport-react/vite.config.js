@@ -18,8 +18,8 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    // Опционально: минимизация бандла
-    minify: 'terser',
+    // Используем esbuild для минификации вместо terser
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {

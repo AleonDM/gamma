@@ -1,7 +1,7 @@
 [build]
   base = "cybersport-react"
   publish = "dist"
-  command = "npm run build"
+  command = "npm install terser && npm run build"
 
 # Перенаправления для SPA
 [[redirects]]
@@ -17,4 +17,4 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://your-render-api.onrender.com; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self';" 
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://*.onrender.com; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self';" 
