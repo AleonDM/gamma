@@ -20,7 +20,8 @@ const MatchCreateModal = ({ stageId, groupId, match, onClose, onSave }) => {
     time: '',
     status: 'Запланирован',
     location: '',
-    description: ''
+    description: '',
+    showingAllTeams: false
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -29,11 +30,38 @@ const MatchCreateModal = ({ stageId, groupId, match, onClose, onSave }) => {
     // Загружаем команды при монтировании компонента
     const loadTeams = async () => {
       try {
-        const response = await axios.get('/api/teams');
-        setTeams(response.data);
+        let response;
+        
+        // Загружаем только команды из этапа турнира
+        response = await axios.get(`/api/tournaments/stages/${stageId}/teams`);
+        
+        // Если команд в этапе нет, загружаем все команды как запасной вариант
+        if (!response.data || response.data.length === 0) {
+          console.log('В этапе нет команд, загружаем все команды');
+          const allTeamsResponse = await axios.get('/api/teams');
+          
+          // Устанавливаем флаг, что мы показываем все команды
+          setFormData(prev => ({ ...prev, showingAllTeams: true }));
+          
+          setTeams(allTeamsResponse.data);
+        } else {
+          console.log(`Загружено ${response.data.length} команд из этапа`);
+          
+          // Устанавливаем флаг, что мы показываем только команды из этапа
+          setFormData(prev => ({ ...prev, showingAllTeams: false }));
+          
+          setTeams(response.data);
+        }
       } catch (err) {
         console.error('Ошибка при загрузке команд:', err);
-        setError('Не удалось загрузить список команд');
+        // В случае ошибки, пробуем загрузить все команды
+        try {
+          const allTeamsResponse = await axios.get('/api/teams');
+          setTeams(allTeamsResponse.data);
+        } catch (fallbackErr) {
+          console.error('Ошибка при загрузке всех команд:', fallbackErr);
+          setError('Не удалось загрузить список команд');
+        }
       }
     };
     
@@ -145,12 +173,22 @@ const MatchCreateModal = ({ stageId, groupId, match, onClose, onSave }) => {
       if (isNew) {
         // Создаем новый матч
         const response = await axios.post(endpoint, submitData);
+        console.log('Создан новый матч:', response.data);
       } else {
         // Обновляем существующий матч
         const response = await axios.put(`${endpoint}/${match.id}`, submitData);
+        console.log('Обновлен существующий матч:', response.data);
       }
       
-      onSave && onSave();
+      // Проверяем, был ли завершен матч
+      if (formData.status === 'Завершён') {
+        console.log('Матч завершен, статистика должна обновиться автоматически');
+      }
+      
+      // Задержка для того, чтобы сервер успел обработать запрос
+      setTimeout(() => {
+        onSave && onSave();
+      }, 300);
     } catch (err) {
       console.error('Ошибка при сохранении матча:', err);
       console.error('Детали ошибки:', err.response?.data || err.message);
@@ -172,6 +210,15 @@ const MatchCreateModal = ({ stageId, groupId, match, onClose, onSave }) => {
           {error && <div className="modal-error">{error}</div>}
           
           <div className="match-teams-section">
+            <div className="match-team-info">
+              <p className={`team-selection-info ${formData.showingAllTeams ? 'warning' : ''}`}>
+                {teams.length > 0 
+                  ? formData.showingAllTeams
+                    ? `Внимание: показаны все команды, поскольку в этапе нет команд. Сначала добавьте команды в группы.`
+                    : `Доступны команды из текущего этапа (${teams.length})` 
+                  : 'Не найдены команды. Сначала создайте команды и добавьте их в группы.'}
+              </p>
+            </div>
             <div className="match-team-row">
               <div className="form-group">
                 <label htmlFor="team1_id">Команда 1*</label>

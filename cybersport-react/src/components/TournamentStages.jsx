@@ -10,10 +10,18 @@ const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated, 
   const [error, setError] = useState(null);
   const [expandedStages, setExpandedStages] = useState({});
   const [expandedGroups, setExpandedGroups] = useState({});
+  const [reloadTrigger, setReloadTrigger] = useState(0);
 
   useEffect(() => {
+    console.log('Загрузка этапов турнира, reloadTrigger:', reloadTrigger);
     loadStages();
-  }, [tournamentId]);
+  }, [tournamentId, reloadTrigger]);
+
+  // Функция для перезагрузки статистики
+  const refreshStats = () => {
+    console.log('Запрошено обновление статистики');
+    setReloadTrigger(prev => prev + 1);
+  };
 
   const loadStages = async () => {
     try {
@@ -236,21 +244,15 @@ const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated, 
                             stageId={stage.id} 
                             groupId={group.id}
                             isAdmin={isAdmin}
-                            onMatchesUpdated={onMatchesUpdated}
+                            onMatchesUpdated={(data) => {
+                              // Передаем данные в родительский компонент
+                              onMatchesUpdated && onMatchesUpdated(data);
+                              // Обновляем статистику только при явном редактировании/сохранении матча
+                              if (data.type === 'save' || data.type === 'edit') {
+                                refreshStats();
+                              }
+                            }}
                           />
-                          
-                          {/* Тестовый индикатор, чтобы определить, видны ли вообще компоненты в этой области */}
-                          <div style={{
-                            backgroundColor: 'purple', 
-                            color: 'white', 
-                            padding: '10px', 
-                            margin: '10px 0', 
-                            textAlign: 'center',
-                            borderRadius: '5px',
-                            fontWeight: 'bold'
-                          }}>
-                            Тестовая область группы {group.id}
-                          </div>
                         </div>
                       )}
                     </div>
@@ -262,7 +264,13 @@ const TournamentStages = ({ tournamentId, isAdmin, onEditStage, onStageUpdated, 
                   <TournamentMatches 
                     stageId={stage.id}
                     isAdmin={isAdmin}
-                    onMatchesUpdated={onMatchesUpdated}
+                    onMatchesUpdated={(data) => {
+                      onMatchesUpdated && onMatchesUpdated(data);
+                      // Обновляем статистику только при явном редактировании/сохранении матча
+                      if (data.type === 'save' || data.type === 'edit') {
+                        refreshStats();
+                      }
+                    }}
                   />
                 </div>
               ) : (

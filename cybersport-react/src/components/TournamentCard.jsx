@@ -93,6 +93,31 @@ const TournamentCard = ({ tournament, isAdmin, onTournamentUpdated }) => {
     }
   };
 
+  // Обработчик восстановления турнира из архива
+  const handleUnarchiveClick = async (e) => {
+    e.stopPropagation();
+    
+    if (window.confirm('Вы уверены, что хотите восстановить этот турнир из архива?')) {
+      try {
+        setIsArchiving(true);
+        console.log(`Начинаю восстановление турнира ${tournament.id}: ${tournament.name}`);
+        const response = await axios.post(`/api/tournaments/${tournament.id}/restore`);
+        console.log('Ответ сервера на восстановление:', response.data);
+        
+        // Обновляем список турниров после восстановления
+        if (onTournamentUpdated) {
+          console.log('Вызываю onTournamentUpdated для обновления списка турниров');
+          onTournamentUpdated();
+        }
+      } catch (error) {
+        console.error('Ошибка при восстановлении турнира из архива:', error);
+        alert('Не удалось восстановить турнир. Пожалуйста, попробуйте позже.');
+      } finally {
+        setIsArchiving(false);
+      }
+    }
+  };
+
   const getStatusText = (status) => {
     if (!status) return 'Не указан';
     
@@ -194,11 +219,11 @@ const TournamentCard = ({ tournament, isAdmin, onTournamentUpdated }) => {
                   Редактировать
                 </button>
                 <button 
-                  className="tournament-button archive-button" 
-                  onClick={handleArchiveClick}
+                  className={`tournament-button ${tournament.archived ? 'unarchive-button' : 'archive-button'}`} 
+                  onClick={tournament.archived ? handleUnarchiveClick : handleArchiveClick}
                   disabled={isArchiving}
                 >
-                  {isArchiving ? 'Архивация...' : 'В архив'}
+                  {isArchiving ? 'Обработка...' : tournament.archived ? 'Восстановить' : 'В архив'}
                 </button>
               </div>
             </div>

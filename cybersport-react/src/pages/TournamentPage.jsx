@@ -4,6 +4,8 @@ import axios from 'axios';
 import TournamentStages from '../components/TournamentStages';
 import StageCreateModal from '../components/StageCreateModal';
 import MatchCreateModal from '../components/MatchCreateModal';
+import TournamentEditModal from '../components/TournamentEditModal';
+import { FiEdit } from 'react-icons/fi';
 import './TournamentPage.css';
 
 const TournamentPage = ({ isAdmin }) => {
@@ -14,6 +16,7 @@ const TournamentPage = ({ isAdmin }) => {
   const [showStageModal, setShowStageModal] = useState(false);
   const [selectedStage, setSelectedStage] = useState(null);
   const [showMatchModal, setShowMatchModal] = useState(false);
+  const [showEditTournamentModal, setShowEditTournamentModal] = useState(false);
   const [matchData, setMatchData] = useState({
     stageId: null,
     groupId: null,
@@ -38,6 +41,19 @@ const TournamentPage = ({ isAdmin }) => {
     }
   };
 
+  const handleEditTournament = () => {
+    setShowEditTournamentModal(true);
+  };
+
+  const handleCloseEditTournamentModal = () => {
+    setShowEditTournamentModal(false);
+  };
+
+  const handleTournamentUpdated = (updatedTournament) => {
+    setTournament(updatedTournament);
+    setShowEditTournamentModal(false);
+  };
+
   const handleAddStage = () => {
     setSelectedStage(null);
     setShowStageModal(true);
@@ -58,6 +74,8 @@ const TournamentPage = ({ isAdmin }) => {
   };
 
   const handleMatchesUpdated = (data) => {
+    console.log('handleMatchesUpdated получен сигнал:', data);
+    
     if (data.type === 'add' || data.type === 'edit') {
       setMatchData({
         stageId: data.stageId,
@@ -66,6 +84,7 @@ const TournamentPage = ({ isAdmin }) => {
       });
       setShowMatchModal(true);
     }
+    // Другие типы сигналов не требуют обработки на этом уровне
   };
 
   const handleCloseMatchModal = () => {
@@ -141,7 +160,18 @@ const TournamentPage = ({ isAdmin }) => {
         </div>
         
         <div className="tournament-title-section">
-          <h1>{tournament.name}</h1>
+          <div className="tournament-title-row">
+            <h1>{tournament.name}</h1>
+            {isAdmin && (
+              <button 
+                className="edit-tournament-button"
+                onClick={handleEditTournament}
+                title="Редактировать информацию о турнире"
+              >
+                <FiEdit size={20} />
+              </button>
+            )}
+          </div>
           <div className="tournament-meta">
             <span className={`tournament-status ${getStatusClass(tournament.status)}`}>
               {tournament.status}
@@ -216,6 +246,15 @@ const TournamentPage = ({ isAdmin }) => {
           match={matchData.match}
           onClose={handleCloseMatchModal}
           onSave={handleSaveMatch}
+        />
+      )}
+      
+      {showEditTournamentModal && (
+        <TournamentEditModal 
+          tournament={tournament}
+          onClose={handleCloseEditTournamentModal}
+          onTournamentUpdated={handleTournamentUpdated}
+          isNew={false}
         />
       )}
     </div>

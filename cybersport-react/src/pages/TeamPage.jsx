@@ -227,31 +227,41 @@ const TeamPage = () => {
       </div>
       
       <div className="team-content">
-        <section className="team-section">
-          <h2>Состав команды</h2>
-          <div className="team-members-list">
-            {members.length > 0 ? (
-              members.map((member, index) => (
-                <div key={index} className="team-member-item">
-                  <div className="member-info">
-                    <span className="member-name">{member.name}</span>
-                    {member.role && (
-                      <span className="member-role">{member.role}</span>
-                    )}
+        <section className="team-section members-section">
+          <h2 className="section-title">Состав команды</h2>
+          {isAuthorized ? (
+            <div className="team-members-list">
+              {members.length > 0 ? (
+                members.map((member, index) => (
+                  <div key={index} className="team-member-item">
+                    <div className="member-avatar">
+                      {member.name.charAt(0)}
+                    </div>
+                    <div className="member-info">
+                      <span className="member-name">{member.name}</span>
+                      {member.role && (
+                        <span className="member-role">{member.role}</span>
+                      )}
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="no-data">
+                  <p>Информация о составе команды отсутствует</p>
                 </div>
-              ))
-            ) : (
-              <div className="no-data">
-                <p>Информация о составе команды отсутствует</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="locked-content">
+              <div className="lock-icon">🔒</div>
+              <p>Чтобы увидеть состав команды, введите код команды в форму входа</p>
+            </div>
+          )}
         </section>
-        
+
         {isAuthorized && (
           <section className="team-section">
-            <h2>Турниры команды</h2>
+            <h2 className="section-title">Турниры команды</h2>
             <div className="team-tournaments-list">
               {tournaments.length > 0 ? (
                 tournaments.map(tournament => (

@@ -23,49 +23,9 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   margin-bottom: 2rem;
-}
-
-.admin-tabs {
-  display: flex;
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.tab-button {
-  padding: 1rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #495057;
-  transition: all 0.2s ease;
-  font-family: var(--font-buttons);
-  border-bottom: 2px solid transparent;
-  flex: 1;
-  text-align: center;
-}
-
-.tab-button:hover {
-  background-color: rgba(30, 60, 114, 0.05);
-  color: #1e3c72;
-}
-
-.tab-button.active {
-  color: #1e3c72;
-  background-color: rgba(30, 60, 114, 0.1);
-  border-bottom: 2px solid #1e3c72;
-}
-
-.admin-tab-content {
   padding: 2rem;
 }
 
-.tab-pane {
-  animation: fadeIn 0.3s ease-in;
-}
-
-.admin-actions h2,
 .teams-management h2 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
@@ -73,28 +33,10 @@
   font-family: var(--font-buttons);
 }
 
-.admin-actions p,
 .teams-management p {
   color: #6c757d;
   margin-bottom: 1.5rem;
   font-size: 1rem;
-}
-
-.admin-action-button {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 0.5rem;
-  margin-bottom: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.admin-action-button:hover {
-  transform: translateY(-2px);
 }
 
 .admin-footer {
@@ -118,10 +60,6 @@
   background: rgba(220, 53, 69, 0.15);
 }
 
-.teams-management {
-  margin-top: 1rem;
-}
-
 @media (max-width: 768px) {
   .admin-page {
     padding: 1rem;
@@ -131,12 +69,7 @@
     font-size: 2rem;
   }
   
-  .tab-button {
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .admin-tab-content {
+  .admin-content {
     padding: 1.5rem 1rem;
   }
   

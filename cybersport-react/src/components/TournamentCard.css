@@ -98,14 +98,14 @@
   color: white;
   font-size: 0.9rem;
   font-weight: 600;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
   align-self: flex-end;
 }
 
 .tournament-content {
-  padding: 1.25rem;
+  padding: 1.5rem 1.25rem 1.25rem;
 }
 
 .tournament-title {
@@ -205,6 +205,15 @@
 
 .archive-button:hover {
   background-color: rgba(229, 62, 62, 0.2);
+}
+
+.unarchive-button {
+  background-color: rgba(56, 142, 60, 0.1);
+  color: #388e3c;
+}
+
+.unarchive-button:hover {
+  background-color: rgba(56, 142, 60, 0.2);
 }
 
 /* Для мобильных устройств */

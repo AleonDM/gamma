@@ -435,6 +435,41 @@ app.get('/api/tournaments/stages/:stageId/groups/:groupId/teams', async (req, re
   }
 });
 
+// Новый эндпоинт для получения всех команд в этапе
+app.get('/api/tournaments/stages/:stageId/teams', async (req, res) => {
+  try {
+    const { stageId } = req.params;
+    
+    // Сначала получаем все группы этапа
+    const groups = await db.getGroupsByStageId(stageId);
+    
+    if (!groups || groups.length === 0) {
+      return res.json([]);
+    }
+    
+    // Получаем команды из всех групп этапа и убираем дубликаты
+    const teamsPromises = groups.map(group => db.getTeamsByGroupId(group.id));
+    const teamsArrays = await Promise.all(teamsPromises);
+    
+    // Создаем плоский массив всех команд
+    const allTeams = teamsArrays.flat();
+    
+    // Удаляем дубликаты команд по ID
+    const uniqueTeams = allTeams.reduce((acc, team) => {
+      const existingTeam = acc.find(t => t.id === team.id);
+      if (!existingTeam) {
+        acc.push(team);
+      }
+      return acc;
+    }, []);
+    
+    res.json(uniqueTeams);
+  } catch (err) {
+    console.error('Ошибка при получении команд этапа:', err);
+    res.status(500).json({ error: 'Не удалось получить команды этапа' });
+  }
+});
+
 // Добавить команду в группу
 app.post('/api/tournaments/stages/:stageId/groups/:groupId/teams', async (req, res) => {
   try {

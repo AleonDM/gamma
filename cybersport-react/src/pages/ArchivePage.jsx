@@ -21,6 +21,7 @@ const ArchivePage = ({ isAdmin }) => {
       setLoading(true);
       setError(null);
       const response = await axios.get('/api/tournaments?archived=true');
+      console.log('Загруженные архивные турниры:', response.data);
       setTournaments(response.data);
     } catch (error) {
       console.error('Error loading archived tournaments:', error);
@@ -39,6 +40,8 @@ const ArchivePage = ({ isAdmin }) => {
     const matchesStatus = selectedStatus === 'all' || tournament.status === selectedStatus;
     
     const matchesDiscipline = selectedDiscipline === 'all' || tournament.discipline === selectedDiscipline;
+    
+    console.log(`Турнир: ${tournament.name}, Дисциплина: ${tournament.discipline}, Выбранная дисциплина: ${selectedDiscipline}, Совпадение: ${matchesDiscipline}`);
     
     return matchesSearch && matchesStatus && matchesDiscipline;
   };
@@ -79,7 +82,7 @@ const ArchivePage = ({ isAdmin }) => {
           >
             <option value="all">Все дисциплины</option>
             <option value="Dota 2">Dota 2</option>
-            <option value="CS2">CS2</option>
+            <option value="CS 2">CS 2</option>
             <option value="Brawl Stars">Brawl Stars</option>
             <option value="Valorant">Valorant</option>
           </select>

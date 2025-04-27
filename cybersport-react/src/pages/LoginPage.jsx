@@ -69,8 +69,8 @@ const LoginPage = ({ setIsAdmin }) => {
         localStorage.setItem('isAdmin', 'false');
         setIsAdmin(false);
         
-        // Переходим на главную страницу
-        navigate('/');
+        // Переходим на страницу команды вместо главной страницы
+        navigate(`/team/${response.data.id}`);
       } else {
         setError('Неверный код команды');
       }

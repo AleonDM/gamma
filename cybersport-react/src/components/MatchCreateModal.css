@@ -196,4 +196,25 @@
   .vs-separator {
     margin: 10px 0;
   }
+}
+
+.match-team-info {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.team-selection-info {
+  font-size: 0.9rem;
+  color: #586069;
+  margin: 0;
+  padding: 8px;
+  font-style: italic;
+  border-radius: 4px;
+  background-color: #f6f8fa;
+}
+
+.team-selection-info.warning {
+  color: #b08800;
+  background-color: #fff8c5;
+  border: 1px solid #f1e8bc;
 } 
