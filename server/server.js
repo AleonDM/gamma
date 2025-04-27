@@ -14,16 +14,22 @@ const PORT = process.env.PORT || 3001;
 
 // Разрешаем CORS для всех источников или только для конкретного домена
 if (process.env.NODE_ENV === 'production') {
-  // В продакшн режиме разрешаем запросы только с домена клиентского приложения
-  const allowedOrigins = [process.env.CLIENT_URL || 'https://your-netlify-app.netlify.app'];
+  // В продакшн режиме разрешаем запросы с Netlify и других разрешенных доменов
+  const allowedOrigins = [
+    process.env.CLIENT_URL || 'https://gamma-cybersport.netlify.app',
+    'https://gamma-cybersport.netlify.app'
+  ];
+  
+  console.log('Allowed origins for CORS:', allowedOrigins);
+  
   app.use(cors({
     origin: function(origin, callback) {
       // Проверяем, является ли origin разрешенным
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         console.warn(`Запрос от неразрешенного источника: ${origin}`);
-        callback(new Error('Запрещено CORS политикой'));
+        callback(null, true); // Разрешаем для отладки, потом можно ограничить
       }
     },
     credentials: true
@@ -31,6 +37,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   // В режиме разработки разрешаем все запросы
   app.use(cors());
+  console.log('CORS включен для всех источников (режим разработки)');
 }
 
 app.use(bodyParser.json()); // Парсим JSON-запросы

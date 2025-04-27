@@ -17,4 +17,5 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://*.onrender.com; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self';" 
+    # Разрешаем подключения к API на Render и другим доменам
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://*.onrender.com https://cybersport-api.onrender.com; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self';" 

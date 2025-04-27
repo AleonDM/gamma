@@ -14,6 +14,12 @@ export const ADMIN_CODE = import.meta.env.VITE_ADMIN_CODE || 'admin';
  */
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
+// Выводим информацию о переменных окружения в консоль для отладки
+console.log('ENV Variables:');
+console.log('- API_BASE_URL:', API_BASE_URL);
+console.log('- ADMIN_CODE:', ADMIN_CODE ? '(установлен)' : '(не установлен)');
+console.log('- MODE:', import.meta.env.MODE);
+
 /**
  * Название приложения
  * @type {string}
