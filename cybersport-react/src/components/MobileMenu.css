@@ -70,6 +70,15 @@
   background: rgba(255, 255, 255, 0.15) !important;
 }
 
+.admin-logout-mobile {
+  background: rgba(229, 62, 62, 0.3) !important;
+  margin-top: 10px !important;
+}
+
+.admin-logout-mobile:hover {
+  background: rgba(229, 62, 62, 0.5) !important;
+}
+
 /* Анимации для мобильного меню */
 @keyframes open {
   from {

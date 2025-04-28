@@ -24,6 +24,13 @@ const MobileMenu = ({ isOpen, toggleMenu, toggleNews, isAdmin }) => {
     toggleMenu();
   };
 
+  // Обработчик для выхода из аккаунта администратора
+  const handleAdminLogout = () => {
+    localStorage.removeItem('teamCode');
+    window.location.reload();
+    toggleMenu();
+  };
+
   return (
     <div className={`bar ${isOpen ? 'open' : ''}`} id="bar">
       <div id="space-top"></div>
@@ -106,6 +113,16 @@ const MobileMenu = ({ isOpen, toggleMenu, toggleNews, isAdmin }) => {
         >
           <b>НОВОСТИ</b>
         </div>
+
+        {isAdmin && (
+          <div 
+            id="elem" 
+            className="admin-logout-mobile" 
+            onClick={handleAdminLogout}
+          >
+            <b>Выход из администратора</b>
+          </div>
+        )}
       </div>
     </div>
   );
